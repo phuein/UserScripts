@@ -1,0 +1,87 @@
+// ==UserScript==
+// @name         Facebook YOUR Notifications Highlighter
+// @namespace    http://www.JamesKoss.com/
+// @version      1.0
+// @description  Highlights more interesting notifications for YOU.
+// @author       James Koss
+// @match        https://www.facebook.com/*
+// ==/UserScript==
+
+(function() {
+    'use strict';
+    
+    var first = true;
+    var timed = false;
+    var opened = false;
+    var scrolled = false;
+    
+    function onScrollNots() {
+        if (scrolled === false) {
+            scrolled = true;
+            
+            setTimeout(function() { updateNotifications(); }, 1000);
+            setTimeout(function() { scrolled = false; }, 3000);
+        }
+    }
+    
+    function updateNotifications() {
+        if (timed === false) {
+            setTimeout(function(){ timed = true; updateNotifications(); }, 1000);
+            return;
+        }
+        
+        if (opened === true && scrolled === false) {
+            opened = false;
+            return;
+        }
+        opened = true;
+        
+        if (first === true) {
+            var scrolledArea = document.querySelector('div[class="uiScrollableAreaWrap scrollable"]');
+            scrolledArea.addEventListener("scroll", onScrollNots);
+        }
+        
+        var notificationsHolder = document.querySelector('div[class="_33p"]');
+        var notificationsNew = notificationsHolder.querySelectorAll('li[class="_33c jewelItemNew"]');
+
+        for (var i = 0; i < notificationsNew.length; i++) {
+            var current = notificationsNew[i];
+
+            var notificationParent = current.querySelector('div[class="_4l_v"]');
+            var notificationYour = notificationParent.querySelectorAll('span');
+            
+            var match = false;
+            for (var j=0; j < notificationYour.length; j++) {
+                var cur = notificationYour[j];
+                var t = cur.textContent;
+                
+                if (t.indexOf("replied to your") !== -1 ||
+                    t.indexOf("commented on your") !== -1 ||
+                    t.indexOf("shared your") !== -1) {
+                    match = true;
+                    break;
+                }
+            }
+            
+            if (match === false) {
+                continue;
+            }
+            
+            var a = current.querySelector('a[class="_33e _1_0e"]');
+            a.style.backgroundColor = "#d0dff6";
+            current.style.backgroundColor = "#d0dff6";
+        }
+        
+        timed = false;
+        first = false;
+    }
+    
+    function onclickJewel(e) {
+        if (e.which === 1) {
+            updateNotifications();
+        }
+    }
+    
+    var fbNotificationsJewel = document.getElementById("fbNotificationsJewel");
+    fbNotificationsJewel.addEventListener("click", onclickJewel);
+})();
