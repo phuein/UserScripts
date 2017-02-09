@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Tinychat Cleanup
 // @namespace    http://www.JamesKoss.com/
-// @version      17.11.2016
-// @description  After stylebot (http://stylebot.me/styles/10932) + ABP, remove the other spam.
+// @version      1.1
+// @description  9.2.2017 After stylebot (http://stylebot.me/styles/10932) + ABP, remove the other spam.
 // @author       James Koss
 // @match        https://tinychat.com/*
 // ==/UserScript==
