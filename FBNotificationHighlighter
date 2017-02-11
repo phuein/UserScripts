@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook YOUR Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      1.0
+// @version      1.11
 // @description  Highlights more interesting notifications for YOU.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -15,38 +15,55 @@
     var opened = false;
     var scrolled = false;
     
+    // Update notifications on scrolling.
+    // Not too often. Arbitrary delay.
     function onScrollNots() {
         if (scrolled === false) {
             scrolled = true;
             
-            setTimeout(function() { updateNotifications(); }, 1000);
+            updateNotifications();
+            // Delay until next check from scroll. Arbitrary delay.
             setTimeout(function() { scrolled = false; }, 3000);
         }
     }
     
+    // After clicking the notification, remove highlight color and eventListener.
+    function removeHighlight(e) {
+        e.currentTarget.removeEventListener("click", removeHighlight, false);
+        
+        e.currentTarget.style.backgroundColor = "";
+        e.currentTarget.paramA.style.backgroundColor = "";
+    }
+    
+    // Update relevant notifications with highlight.
     function updateNotifications() {
+        // Delay before element updates, so they load first. Arbitrary delay!
         if (timed === false) {
             setTimeout(function(){ timed = true; updateNotifications(); }, 1000);
             return;
         }
         
+        // Ignore this call, if just clicked to close notifications view.
         if (opened === true && scrolled === false) {
             opened = false;
             return;
         }
         opened = true;
         
+        // On first viewing, add updating when scrolling the notifications.
         if (first === true) {
+            first = false;
             var scrolledArea = document.querySelector('div[class="uiScrollableAreaWrap scrollable"]');
             scrolledArea.addEventListener("scroll", onScrollNots);
         }
         
         var notificationsHolder = document.querySelector('div[class="_33p"]');
+        // Only check new notifications.
         var notificationsNew = notificationsHolder.querySelectorAll('li[class="_33c jewelItemNew"]');
 
         for (var i = 0; i < notificationsNew.length; i++) {
             var current = notificationsNew[i];
-
+            
             var notificationParent = current.querySelector('div[class="_4l_v"]');
             var notificationYour = notificationParent.querySelectorAll('span');
             
@@ -55,33 +72,43 @@
                 var cur = notificationYour[j];
                 var t = cur.textContent;
                 
+                // Relevant text inside notification element.
                 if (t.indexOf("replied to your") !== -1 ||
                     t.indexOf("commented on your") !== -1 ||
-                    t.indexOf("shared your") !== -1) {
+                    t.indexOf("shared your") !== -1 ||
+                    t.indexOf("mentioned you") !== -1 ||
+                    t.indexOf("tagged you") !== -1 ||
+                    t.indexOf("made you") !== -1) {
                     match = true;
                     break;
                 }
             }
             
+            // No match.
             if (match === false) {
                 continue;
             }
             
+            // Update the li & a elements backgrounds.
             var a = current.querySelector('a[class="_33e _1_0e"]');
             a.style.backgroundColor = "#d0dff6";
             current.style.backgroundColor = "#d0dff6";
+            
+            current.paramA = a; // Pass to object, for highlight removal after clicked.
+            current.addEventListener("click", removeHighlight, false);
         }
         
         timed = false;
-        first = false;
     }
     
+    // Right-Clicking the notifications button on FB.
     function onclickJewel(e) {
         if (e.which === 1) {
             updateNotifications();
         }
     }
     
+    // Listen to a click on the notifications button on FB.
     var fbNotificationsJewel = document.getElementById("fbNotificationsJewel");
     fbNotificationsJewel.addEventListener("click", onclickJewel);
 })();
