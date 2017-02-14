@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook YOUR Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      1.11
+// @version      1.21
 // @description  Highlights more interesting notifications for YOU.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -12,7 +12,6 @@
     
     var first = true;
     var timed = false;
-    var opened = false;
     var scrolled = false;
     
     // Update notifications on scrolling.
@@ -43,13 +42,6 @@
             return;
         }
         
-        // Ignore this call, if just clicked to close notifications view.
-        if (opened === true && scrolled === false) {
-            opened = false;
-            return;
-        }
-        opened = true;
-        
         // On first viewing, add updating when scrolling the notifications.
         if (first === true) {
             first = false;
@@ -67,6 +59,7 @@
             var notificationParent = current.querySelector('div[class="_4l_v"]');
             var notificationYour = notificationParent.querySelectorAll('span');
             
+            // match 1 for interest highlight, 2 for "Like" highlight.
             var match = false;
             for (var j=0; j < notificationYour.length; j++) {
                 var cur = notificationYour[j];
@@ -78,8 +71,14 @@
                     t.indexOf("shared your") !== -1 ||
                     t.indexOf("mentioned you") !== -1 ||
                     t.indexOf("tagged you") !== -1 ||
-                    t.indexOf("made you") !== -1) {
-                    match = true;
+                    t.indexOf("made you") !== -1 ||
+                    t.indexOf("also replied") !== -1 ||
+                    (t.indexOf("replied to") !== -1 && t.indexOf("on your") !== -1)) {
+                    match = 1;
+                    break;
+                } else if (t.indexOf("likes your") !== -1 ||
+                          t.indexOf("like your") !== -1) {
+                    match = 2;
                     break;
                 }
             }
@@ -89,10 +88,21 @@
                 continue;
             }
             
+            // Select color by match value.
+            var color = "#d0dff6";
+            switch(match) {
+                case 1:
+                    color = "#d0dff6";
+                    break;
+                case 2:
+                    color = "#faedf8";
+                    break;
+            }
+            
             // Update the li & a elements backgrounds.
             var a = current.querySelector('a[class="_33e _1_0e"]');
-            a.style.backgroundColor = "#d0dff6";
-            current.style.backgroundColor = "#d0dff6";
+            a.style.backgroundColor = color;
+            current.style.backgroundColor = color;
             
             current.paramA = a; // Pass to object, for highlight removal after clicked.
             current.addEventListener("click", removeHighlight, false);
