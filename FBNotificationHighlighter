@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook YOUR Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      1.21
+// @version      1.22
 // @description  Highlights more interesting notifications for YOU.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -80,6 +80,9 @@
                           t.indexOf("like your") !== -1) {
                     match = 2;
                     break;
+                } else if (t.indexOf("approved your") !== -1) {
+                    match = 3;
+                    break;
                 }
             }
             
@@ -88,14 +91,17 @@
                 continue;
             }
             
-            // Select color by match value.
-            var color = "#d0dff6";
+            // Select color by matching value.
+            var color;
             switch(match) {
                 case 1:
-                    color = "#d0dff6";
+                    color = "#d7e2f4"; // darker blue
                     break;
                 case 2:
-                    color = "#faedf8";
+                    color = "#faedf8"; // light pink
+                    break;
+                case 3:
+                    color = "#d7f4d7"; // light green
                     break;
             }
             
