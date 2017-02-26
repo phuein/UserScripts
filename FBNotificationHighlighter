@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook YOUR Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      1.23
+// @version      1.3
 // @description  Highlights more interesting notifications for YOU.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -31,7 +31,9 @@
         e.currentTarget.removeEventListener("click", removeHighlight, false);
         
         e.currentTarget.style.backgroundColor = "";
-        e.currentTarget.paramA.style.backgroundColor = "";
+        if (e.currentTarget.paramA !== null) {
+            e.currentTarget.paramA.style.backgroundColor = "";
+        }
     }
     
     // Update relevant notifications with highlight.
@@ -108,7 +110,9 @@
             
             // Update the li & a elements backgrounds.
             var a = current.querySelector('a[class="_33e _1_0e"]');
-            a.style.backgroundColor = color;
+            if (a !== null) {
+                a.style.backgroundColor = color;
+            }
             current.style.backgroundColor = color;
             
             current.paramA = a; // Pass to object, for highlight removal after clicked.
