@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Facebook YOUR Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      1.31
+// @version      1.3.2
 // @description  Highlights the more interesting notifications for YOU.
 // @author       James Koss
 // @match        https://www.facebook.com/*
+// @supportURL   https://greasyfork.org/en/scripts/27189-facebook-your-notifications-highlighter/feedback
 // ==/UserScript==
 
 (function() {
@@ -86,7 +87,8 @@
                 } else if (t.indexOf("approved your") !== -1) {
                     match = 3;
                     break;
-                } else if (t.indexOf("needs review") !== -1) {
+                } else if (t.indexOf("needs review") !== -1 ||
+                           t.indexOf("your Timeline") !== -1) {
                     match = 4;
                     break;
                 }
