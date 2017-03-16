@@ -1,6 +1,14 @@
 @-moz-document domain("facebook.com") {
+
+/* Don't apply chat colors for my side. */
 ._1nc6 div[class="_d97"] {
   background-color: #4080ff !IMPORTANT;
   /* background-color: hsla(258, 46%, 55%, 1); */
 }
+
+/* Don't flip cam. */
+video._9q6 {
+	transform: none;
+}
+
 }
