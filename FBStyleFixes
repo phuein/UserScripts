@@ -6,9 +6,4 @@
   /* background-color: hsla(258, 46%, 55%, 1); */
 }
 
-/* Don't flip cam. */
-video._9q6 {
-	transform: none;
-}
-
 }
