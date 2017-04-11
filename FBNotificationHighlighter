@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      2.0.1
+// @version      2.1.0
 // @description  Highlights your interesting notifications, with an option to hide the unimportant ones.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -11,9 +11,9 @@
 (function() {
     'use strict';
     
-    var first = true;
-    var hidden = false;
-    var updater = null;
+    var first = true;     // First notifications popup loading.
+    var hidden = false;   // Non-highlighted notifications are hidden.
+	var updater = null;   // Timed updating.
     
     var fbNotificationsFlyout = null;
     var ulElement = null;
@@ -27,7 +27,7 @@
     
     function startScript() {
         fbNotificationsFlyout = document.getElementById('fbNotificationsFlyout');
-        
+		
         // Listen to a click on the notifications button on FB.
         var fbNotificationsJewel = document.getElementById("fbNotificationsJewel");
         fbNotificationsJewel.addEventListener("click", onclickJewel);
@@ -49,66 +49,68 @@
         if (fbNotificationsFlyout.offsetParent === null) return;
         if (ulElement === null) return;
         
-        // Request more notifications.
+	    // Request more notifications.
         if (hidden === true) {
             // Scrollbar hidden.
-            var sb = fbNotificationsFlyout.querySelector('div.uiScrollableAreaGripper.hidden_elem');
+            var sbh = fbNotificationsFlyout.querySelector('div.uiScrollableAreaGripper.hidden_elem');
             // Or scrolled to bottom.
             var wrap = fbNotificationsFlyout.querySelector('div.uiScrollableAreaWrap');
             var bottom = wrap.offsetHeight + wrap.scrollTop >= wrap.scrollHeight - 10;
             // And loading jewel must exist, otherwise finished all loadings.
             var jewel = fbNotificationsFlyout.querySelector('div.uiScrollableAreaContent span.jewelLoading');
             
-            if (jewel && (sb !== null || bottom === true)) {
+            if ((sbh || bottom) && jewel) {
                 // Fake a scroll event for loader.
                 var e = new Event('scroll');
                 fbNotificationsFlyout.querySelector('div.uiScrollableArea').dispatchEvent(e);
             }
         }
-        
+		
         var curFirstNotification = ulElement.firstChild;
         var curLastNotification = ulElement.lastChild;
         // Update view, if new notifications, or loaded old ones.
         if (curLastNotification !== lastNotification ||
            curFirstNotification !== firstNotification) {
+            // Update globals.
+            firstNotification = curFirstNotification;
+            lastNotification = curLastNotification;
+            
             updateNotifications();
             updateVisibility();
         }
-        
-        firstNotification = curFirstNotification;
-        lastNotification = curLastNotification;
     }
     
     // After clicking the notification, remove highlight color and eventListener.
     function removeHighlight(e) {
-        e.currentTarget.classList.remove("jewelItemNew");
-        e.currentTarget.removeEventListener("click", removeHighlight);
-        
-        e.currentTarget.style.backgroundColor = "";
+		e.currentTarget.removeEventListener("click", removeHighlight);
+        // Remove script styling.
+		e.currentTarget.style.backgroundColor = "";
         if (e.currentTarget.paramA !== null) {
             e.currentTarget.paramA.style.backgroundColor = "";
         }
-        
-        // Remove highlight class.
-        e.currentTarget.classList.remove("highlightedNotification");
-        updateVisibility();
     }
     
     // Update notifications visibility.
-    function updateVisibility() {
-        var notificationsOld = ulElement.querySelectorAll('li:not(.highlightedNotification), li.highlightedReact');
+    function updateVisibility(req) {
+		// Select all relevant notifications.
+        var notifications = ulElement.querySelectorAll('li:not([data-highlighted]), li[data-highlightedreact]');
         
-        for (var i=0; i < notificationsOld.length; i++) {
+        for (var i=0; i < notifications.length; i++) {
+			var cur = notifications[i];
             var displayMode = null;
-            if (hidden === true) displayMode = 'none';
+			
+            if (hidden === true)
+				displayMode = 'none';
 
-            notificationsOld[i].style.display = displayMode;
+            cur.style.display = displayMode;
         }
     }
     
     // Update relevant notifications with highlight.
     function updateNotifications() {
-        if (ulElement === null) ulElement = fbNotificationsFlyout.querySelector('ul');
+        if (ulElement === null) {
+			ulElement = fbNotificationsFlyout.querySelector('ul');
+		}
         // Delay until notifications elements are available.
         if (ulElement === null) {
             setTimeout(function(){ updateNotifications(); }, 500);
@@ -152,7 +154,7 @@
         }
         
         // Only check new notifications.
-        var notificationsNew = ulElement.querySelectorAll('li.jewelItemNew:not(.highlightedNotification)');
+        var notificationsNew = ulElement.querySelectorAll('li.jewelItemNew:not([data-highlighted])');
 
         for (var i = 0; i < notificationsNew.length; i++) {
             var current = notificationsNew[i];
@@ -175,7 +177,10 @@
                     t.indexOf("you're tagged in") !== -1 ||
                     t.indexOf("made you") !== -1 ||
                     t.indexOf("also replied") !== -1 ||
-                    (t.indexOf("replied to") !== -1 && t.indexOf("on your") !== -1)) {
+                    (t.indexOf("replied to") !== -1 && t.indexOf("on your") !== -1) ||
+                    t.indexOf("also commented on his post") !== -1 ||
+                    t.indexOf("also commented on her post") !== -1 ||
+                    t.indexOf("also commented on their post") !== -1) {
                     match = 1;
                     break;
                 } else if (t.indexOf("likes your") !== -1 ||
@@ -191,7 +196,9 @@
                     break;
                 } else if (t.indexOf("needs review") !== -1 ||
                            t.indexOf("your Timeline") !== -1 ||
-                           t.indexOf("flagged as possible spam") !== -1) {
+                           t.indexOf("flagged as possible spam") !== -1 ||
+                           t.indexOf("added a photo of you") !== -1 ||
+						   t.indexOf("invited you to join") !== -1) {
                     match = 4;
                     break;
                 }
@@ -202,8 +209,8 @@
                 continue;
             }
             
-            // Remember highlight.
-            current.classList.add("highlightedNotification");
+            // Remember highlighted element.
+			current.dataset.highlighted = "1";
             
             // Select color by matching value.
             var color;
@@ -213,7 +220,7 @@
                     break;
                 case 2:
                     color = "#faedf8"; // light pink
-                    current.classList.add("highlightedReact");
+					current.dataset.highlightedreact = "1";
                     break;
                 case 3:
                     color = "#d7f4d7"; // light green
