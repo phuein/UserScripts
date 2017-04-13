@@ -1,9 +1,12 @@
 @-moz-document domain("facebook.com") {
-
 /* Don't apply chat colors for my side. */
 ._1nc6 div[class="_d97"] {
   background-color: #4080ff !IMPORTANT;
   /* background-color: hsla(258, 46%, 55%, 1); */
 }
 
+/* Hide "Games" section from chat sidebar, to expand chat section. */
+#pagelet_canvas_nav_content {
+	display: none !important;
+}
 }
