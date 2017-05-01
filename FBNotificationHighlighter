@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      2.1.0
+// @version      2.2.0
 // @description  Highlights your interesting notifications, with an option to hide the unimportant ones.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -19,7 +19,55 @@
     var ulElement = null;
     var firstNotification = null;
     var lastNotification = null;
-    
+	
+	var notificationColors = {
+		'darkblue':   '#c3d4ef',
+		'lightpink':  '#faedf8',
+		'lightgreen': '#d7f4d7',
+		'darkpurple': '#dec3ef'
+	};
+	
+	// Substring in notification.
+	// Array must match all substrings in notification.
+	var notificationTypes = {
+		'important': [
+			'replied to your',
+			'commented on your',
+			'shared your',
+			'mentioned you',
+			'tagged you',
+			"you're tagged in",
+			'also replied',
+			'also commented on his post',
+			'also commented on her post',
+			'also commented on their post',
+			['replied to', 'on your'],
+			['marked', 'safe'],
+		],
+		'react': [
+			'likes your',
+			'like your',
+			'liked your',
+			'reacted to',
+			['likes a', 'you']
+		],
+		'urgent': [
+			'your Timeline',
+			'added a photo of you',
+			'invited you to join',
+			'is live now'
+		],
+		'mod': [
+			'approved your',
+			'changed the name of the',
+			'changed the type of the',
+			'needs review',
+			'flagged as possible spam',
+			'made you',
+			'changed the privacy'
+		]
+	};
+	
     // Wait for page to load.
     window.addEventListener('load', function() {
         startScript();
@@ -39,7 +87,7 @@
     // Clicking the notifications button on FB.
     function onclickJewel(e) {
         if (e.which === 1) {
-            updateNotifications();
+			setTimeout(function(){ updateNotifications(); }, 500);
         }
     }
     
@@ -105,6 +153,43 @@
             cur.style.display = displayMode;
         }
     }
+	
+	// Return true if substr exists in nstr.
+	// substr Arrays must match every string in them.
+	function matchType(nstr, substr) {
+		switch(typeof(substr)) {
+			case 'string':
+				if (~nstr.indexOf(substr)) {
+					return true;
+				}
+				break;
+
+			case 'object':
+				var all = true;
+				for (var i=0; i < substr.length; i++) {
+					var c = substr[i];
+					// Every substring must exist.
+					if (!~nstr.indexOf(c)) {
+						all = false;
+					}
+				}
+				if (all) return true;
+				break;
+		}
+	}
+	
+	// Return True if notification matches type.
+	// n - Notification text.
+	// t - Type String in notificationTypes.
+	function notificationType(n, t) {
+		var group = notificationTypes[t];
+		for (var i=0; i < group.length; i++) {
+			var c = group[i];
+			if (matchType(n, c)) {
+				return true;
+			}
+		}
+	}
     
     // Update relevant notifications with highlight.
     function updateNotifications() {
@@ -157,57 +242,56 @@
         var notificationsNew = ulElement.querySelectorAll('li.jewelItemNew:not([data-highlighted])');
 
         for (var i = 0; i < notificationsNew.length; i++) {
+			var match = false;
             var current = notificationsNew[i];
             
+			// Any notification from a friend.
+			if ('dataset' in current && 'gt' in current.dataset) {
+				// Important notifications.
+				if (~current.dataset.gt.indexOf(':"from_friend"') ||
+				   ~current.dataset.gt.indexOf(':"highlights_friend_liker_commenter"')) {
+					match = 1;
+				}
+				// Urgent notifications.
+				if (~current.dataset.gt.indexOf(':"flytrap_bug_report_response"')) {
+					match = 3;
+				}
+			}
+			
             var notificationParent = current.querySelector('div[class="_4l_v"]');
-            var notificationYour = notificationParent.querySelectorAll('span');
+            var notificationYour = notificationParent.querySelectorAll('span:not(.fwb)');
             
-            // match 1 for interest highlight, 2 for "Like" highlight.
-            var match = false;
             for (var j=0; j < notificationYour.length; j++) {
+				// Matched before loop.
+				if (match) break;
+				
                 var cur = notificationYour[j];
-                var t = cur.textContent;
+                var t = cur.textContent.trim();
                 
-                // Relevant text inside notification element.
-                if (t.indexOf("replied to your") !== -1 ||
-                    t.indexOf("commented on your") !== -1 ||
-                    t.indexOf("shared your") !== -1 ||
-                    t.indexOf("mentioned you") !== -1 ||
-                    t.indexOf("tagged you") !== -1 ||
-                    t.indexOf("you're tagged in") !== -1 ||
-                    t.indexOf("made you") !== -1 ||
-                    t.indexOf("also replied") !== -1 ||
-                    (t.indexOf("replied to") !== -1 && t.indexOf("on your") !== -1) ||
-                    t.indexOf("also commented on his post") !== -1 ||
-                    t.indexOf("also commented on her post") !== -1 ||
-                    t.indexOf("also commented on their post") !== -1) {
-                    match = 1;
-                    break;
-                } else if (t.indexOf("likes your") !== -1 ||
-                          t.indexOf("like your") !== -1 ||
-                          t.indexOf("liked your") !== -1 ||
-                          t.indexOf("reacted to") !== -1) {
-                    match = 2;
-                    break;
-                } else if (t.indexOf("approved your") !== -1 ||
-                          t.indexOf("changed the name of the") !== -1 ||
-                          t.indexOf("changed the type of the") !== -1) {
-                    match = 3;
-                    break;
-                } else if (t.indexOf("needs review") !== -1 ||
-                           t.indexOf("your Timeline") !== -1 ||
-                           t.indexOf("flagged as possible spam") !== -1 ||
-                           t.indexOf("added a photo of you") !== -1 ||
-						   t.indexOf("invited you to join") !== -1) {
-                    match = 4;
-                    break;
-                }
+				// Skip single word SPAN elements.
+				if (!~t.trim().indexOf(" ")) continue;
+				
+				// Relevant text inside notification element.
+				if (notificationType(t, 'important')) {
+					match = 1;
+					break;
+				}
+				if (notificationType(t, 'react')) {
+					match = 2;
+					break;
+				}
+				if (notificationType(t, 'urgent')) {
+					match = 3;
+					break;
+				}
+				if (notificationType(t, 'mod')) {
+					match = 4;
+					break;
+				}
             }
             
-            // No match.
-            if (match === false) {
-                continue;
-            }
+            // No match, check next notification.
+            if (!match) continue;
             
             // Remember highlighted element.
 			current.dataset.highlighted = "1";
@@ -216,17 +300,17 @@
             var color;
             switch(match) {
                 case 1:
-                    color = "#c3d4ef"; // darker blue
+                    color = notificationColors.darkblue;
                     break;
                 case 2:
-                    color = "#faedf8"; // light pink
+                    color = notificationColors.lightpink;
 					current.dataset.highlightedreact = "1";
                     break;
                 case 3:
-                    color = "#d7f4d7"; // light green
+                    color = notificationColors.lightgreen;
                     break;
                 case 4:
-                    color = "#dec3ef"; // darker purple
+                    color = notificationColors.darkpurple;
                     break;
             }
             
