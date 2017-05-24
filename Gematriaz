@@ -1,0 +1,31 @@
+first = True
+letters = ['a','b', 'c','d','e','f','g','h','i','j','k','l','m',
+  'n','o','p','q','r','s','t','u','v','w','x','y','z']
+
+# Convert letter to number.
+def toNumber(l):
+  l = l.lower()
+  return letters.index(l) + 1
+
+# Convert word to numbers.
+def convert(w):
+  nw  = ''
+  s   = 0
+  
+  for l in w:
+    try:
+      n = toNumber(l)
+      s += n
+      nw += str(n) + ' '
+    except:
+      pass
+  return [nw, str(s)]
+
+while True:
+  if first:
+    word = raw_input('Type a word to convert from letters to numbers and press Enter. Press Ctrl+C to quit.\n\n')
+    first = False
+  else:
+    word = raw_input('')
+  res = convert(word)
+  print(res[0]+'= '+res[1]+'\n')
