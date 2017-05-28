@@ -9,4 +9,9 @@
 #pagelet_canvas_nav_content {
 	display: none !important;
 }
+
+/* Hide ads but not group suggestions. */
+div.ego_column:not(.egoOrganicColumn) {
+	display: none !important;
+}
 }
