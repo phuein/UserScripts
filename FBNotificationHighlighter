@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      2.2.3
+// @version      2.4
 // @description  Highlights your interesting notifications, with an option to hide the unimportant ones.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -24,8 +24,8 @@
 
 	var notificationColors = {
 		'darkblue':   '#c3d4ef',
-		'lightpink':  '#faedf8',
-		'lightgreen': '#d7f4d7',
+		'lightpink':  '#efd0ea',
+		'lightgreen': '#c9f1c9',
 		'darkpurple': '#dec3ef'
 	};
 
@@ -45,7 +45,7 @@
 			'also commented on her post',
 			'also commented on their post',
 			['replied to', 'on your'],
-			['marked', 'safe'],
+			['marked', 'safe']
 		],
 		'react': [
 			//'likes your',
@@ -58,7 +58,8 @@
 			'your Timeline',
 			'added a photo of you',
 			'invited you to join',
-			'is live now'
+			'is live now',
+            'now a member of'
 		],
 		'mod': [
 			'approved your',
@@ -146,7 +147,7 @@
 	// Update notifications visibility.
 	function updateVisibility(req) {
 		// Select all relevant notifications.
-		var notifications = ulElement.querySelectorAll('li:not([data-highlighted]), li[data-highlightedreact]');
+		var notifications = ulElement.querySelectorAll('li._33c:not([data-highlighted]), li._33c[data-highlightedreact]');
 
 		for (var i=0; i < notifications.length; i++) {
 			var cur = notifications[i];
@@ -250,13 +251,15 @@
 			var match = false;
 			var current = notificationsNew[i];
 
-			// Any notification from a friend.
+			// General matches by notification type.
+            // NOTE: Substring matches will override these in next check.
 			if ('dataset' in current && 'gt' in current.dataset) {
 				// Important notifications.
 				if (~current.dataset.gt.indexOf(':"from_friend"') ||
 					~current.dataset.gt.indexOf(':"highlights_friend_liker_commenter"') ||
 					~current.dataset.gt.indexOf(':"event_joined_nearby"') ||
-				    ~current.dataset.gt.indexOf(':"app_notification"')) {
+				    ~current.dataset.gt.indexOf(':"app_notification"') ||
+                    ~current.dataset.gt.indexOf(':"message_request"')) {
 					match = 1;
 				}
 				// React notifications.
@@ -279,6 +282,7 @@
 			var notificationParent = current.querySelector('div[class="_4l_v"]');
 			var notificationYour = notificationParent.querySelectorAll('span:not(.fwb)');
 
+            // Loop over all new notifications.
 			for (var j=0; j < notificationYour.length; j++) {
 				// Matched before loop.
 				if (match) break;
