@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      2.4
+// @version      2.5
 // @description  Highlights your interesting notifications, with an option to hide the unimportant ones.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -18,7 +18,7 @@
 
 	var fbNotificationsJewel = null;
 	var fbNotificationsFlyout = null;
-	var ulElement = null;
+    var ulElement = null;
 	var firstNotification = null;
 	var lastNotification = null;
 
@@ -120,8 +120,9 @@
 			}
 		}
 
-		var curFirstNotification = ulElement.firstChild;
-		var curLastNotification = ulElement.lastChild;
+		var mergeLIs = ulElement.querySelectorAll("._33c");
+        var curFirstNotification = mergeLIs[0];
+		var curLastNotification = mergeLIs[mergeLIs.length-1];
 		// Update view, if new notifications, or loaded old ones.
 		if (curLastNotification !== lastNotification ||
 			curFirstNotification !== firstNotification) {
@@ -259,7 +260,8 @@
 					~current.dataset.gt.indexOf(':"highlights_friend_liker_commenter"') ||
 					~current.dataset.gt.indexOf(':"event_joined_nearby"') ||
 				    ~current.dataset.gt.indexOf(':"app_notification"') ||
-                    ~current.dataset.gt.indexOf(':"message_request"')) {
+                    ~current.dataset.gt.indexOf(':"message_request"') ||
+                    ~current.dataset.gt.indexOf(':"appeal_content_block_message_update"')) {
 					match = 1;
 				}
 				// React notifications.
@@ -270,7 +272,8 @@
 				// Urgent notifications.
 				if (~current.dataset.gt.indexOf(':"flytrap_bug_report_response"') ||
 					~current.dataset.gt.indexOf(':"scase_reviewed') ||
-				    ~current.dataset.gt.indexOf(':"scase_response')) {
+				    ~current.dataset.gt.indexOf(':"scase_response') ||
+                    ~current.dataset.gt.indexOf(':"appeal_content_block_message_create')) {
 					match = 3;
 				}
 				// Mod notifications.
