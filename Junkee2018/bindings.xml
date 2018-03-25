@@ -1,6 +1,6 @@
 <Bindings>
   <Layer name="SI_KEYBINDINGS_LAYER_USER_INTERFACE_SHORTCUTS" allowFallthrough="false">
-    <Category name="Junkee2018">
+    <Category name="Junkee 2018">
       <Action name="JUNKEE_JUNK_IT">
 		    <Down>Junkee.JunkIt()</Down>
       </Action>

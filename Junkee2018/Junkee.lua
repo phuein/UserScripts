@@ -14,7 +14,18 @@ Junkee.isJunk = false
 
 Junkee.defaults = {
 	visible = true,
-	firstRun = true
+	firstRun = true,
+	-- Each command name will have "/" prepended to it automatically.
+	slashCmds = {
+		groupleave = {
+			active = false,
+			f = function()
+					if IsUnitGrouped("player") then
+		    			GroupLeave()
+		    		end
+		    	end
+		},
+	}
 }
 
 Junkee.isVisible = function()
@@ -79,6 +90,25 @@ local optionsTable = {
         setFunc = Junkee.setVisible,
         width = "full",	--or "half",
     },
+    [2] = {
+        type = "checkbox",
+        name = "/groupleave",
+        tooltip = "Chat command to leave your group.",
+        getFunc = function()
+        		return Junkee.savedVars.slashCmds["groupleave"].active
+        	end,
+        setFunc = function(v)
+        		Junkee.savedVars.slashCmds["groupleave"].active = v
+        		if v then
+        			SLASH_COMMANDS["/" .. "groupleave"] = Junkee.savedVars.slashCmds["groupleave"].f
+        		else
+        			SLASH_COMMANDS["/" .. "groupleave"] = nil
+        		end
+        		-- Reset autocomplete cache to update it.
+        		SLASH_COMMAND_AUTO_COMPLETE:InvalidateSlashCommandCache()
+        	end,
+        width = "full",	--or "half",
+    },
 }
 
 local function LoadMenu()
@@ -95,7 +125,22 @@ Junkee.Loaded = function(eventCode, addonName)
 		-- Load saved variables.
 		Junkee.savedVars = ZO_SavedVars:New("JunkeeAddonSavedVars", 1, nil, Junkee.defaults)
 
+		-- Settings menu.
 		LoadMenu()
+
+		-- Chat /slash commands.
+		local newCmds = false
+		for cmd, opt in pairs(Junkee.savedVars.slashCmds) do
+			scmd = "/" .. cmd
+			if opt.active then
+				newCmds = true
+				SLASH_COMMANDS[scmd] = opt.f
+			end
+		end
+		-- Reset autocomplete cache to update it.
+		if newCmds then
+			SLASH_COMMAND_AUTO_COMPLETE:InvalidateSlashCommandCache()
+		end
 	end
 end
 em:RegisterForEvent(Junkee.name, EVENT_ADD_ON_LOADED, Junkee.Loaded)
@@ -149,7 +194,7 @@ Junkee.LinkIt = function()
 	ZO_LinkHandler_InsertLink(link)
 end
 
--- Needed to bind Shift+T
+-- Needed to bind CTRL/Shift+KEY.
 function KEYBINDING_MANAGER:IsChordingAlwaysEnabled()
 	return true
 end
@@ -166,7 +211,7 @@ local function OnActivated(eventCode, initial)
     if Junkee.savedVars.firstRun then
 		Junkee.savedVars.firstRun = false
 		-- Do on first run of addon.
-		d("Junkee recommended keybindings:\nJunk/UnJunk = Z, Destroy = Shift+Z, Link = F2.")
+		d("Junkee recommends these keybindings:\nJunk/UnJunk = Z, Destroy = Shift+Z, Link = F2.")
 	end
 end
 em:RegisterForEvent(Junkee.name, EVENT_PLAYER_ACTIVATED, OnActivated)

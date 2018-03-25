@@ -1,6 +1,6 @@
 ## Title: Junkee 2018
 ## APIVersion: 100022
-## Version: 1.2
+## Version: 1.3
 ## Author: Thenedus & Denidil & phuein
 ## Description: Provides a keybinding to quickly mark an item as junk or destroy it.
 ## SavedVariables: JunkeeAddonSavedVars

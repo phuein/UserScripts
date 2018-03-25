@@ -15,6 +15,10 @@ Installation and Setup
 
 Version history
 ---------------
+## 1.3
+- [FIX] Text fixes.
+- [MOD] Added /cmd mechanism + /groupleave. Disabled by default.
+
 ## 1.2
 - [FIX] The addon's keybindings now show on the bottom-left in Inventory to save space.
 - [MOD] Settings option for addon to Show/Hide the keybindings in Inventory screen.
