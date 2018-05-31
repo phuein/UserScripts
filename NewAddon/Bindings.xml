@@ -1,0 +1,9 @@
+<Bindings>
+  <Layer name="SI_KEYBINDINGS_CATEGORY_GENERAL">
+    <Category name="NewAddon">
+      <Action name="NEWADDON_DISPLAY">
+		    <Up>NewAddon.AnimateText()</Up>
+      </Action>
+    </Category>
+  </Layer>
+</Bindings>

@@ -1,0 +1,15 @@
+<GuiXml>
+<Controls>
+<TopLevelControl name="NewAddonActive" hidden="true" alpha="0.0">
+    <Dimensions x="200" y="25" />
+    <Anchor point="BOTTOM" relativeTo="GuiRoot" relativePoint="CENTER" offsetY="-20" />
+        <Controls>
+        <Label name="$(parent)Label" width="200" height="25" font="ZoFontWinH1" color="FFFFFF"
+        wrapMode="TRUNCATE" verticalAlignment="TOP" horizontalAlignment="CENTER"
+        text="NewAddon is active!">
+    <Anchor point="TOP" relativeTo="$(parent)" relativePoint="TOP" />
+</Label>
+</Controls>
+</TopLevelControl>
+</Controls>
+</GuiXml>

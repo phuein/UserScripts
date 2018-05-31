@@ -1,0 +1,11 @@
+<!-- Bindable key for NBUI -->
+<Bindings>
+	<Layer name="SI_KEYBINDINGS_CATEGORY_GENERAL">
+		<!-- Games Default User Interface Category -->
+		<Category name="SI_KEYBINDINGS_CATEGORY_USER_INTERFACE">
+			<Action name="NBUI_NB1TOGGLE">
+				<Up>NBUI.NB1KeyBindToggle()</Up>
+			</Action>		
+		</Category>
+	</Layer>
+</Bindings>

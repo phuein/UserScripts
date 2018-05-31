@@ -11,10 +11,16 @@ Installation and Setup
   where <megaserver> is "live" for North America and "liveeu" for Europe
   (or use Minion)
 - Go to Controls -> Keybindings -> User Interface Shortcuts -> Junkee and bind a key to "Junk current item."
-- Optionally, also bind a key do "Delete current item" and to "Link in Chat current item."
 
 Version history
 ---------------
+## 1.4
+- [FIX] Visual fixes.
+- [FIX] Got an error about duplicate bindings. Added removal before adding by case.
+- [MOD] Toggle displaying which keybindings in Inventory.
+- [MOD] Changed slash commands groupleave and groupdisband to /gl and /gd accordingly.
+- [MOD] Add Lock toggle keybinding.
+
 ## 1.3
 - [FIX] Text fixes.
 - [MOD] Added /cmd mechanism + /groupleave. Disabled by default.

@@ -10,6 +10,9 @@
       <Action name="JUNKEE_LINK_IT">
         <Down>Junkee.LinkIt()</Down>
       </Action>
+      <Action name="JUNKEE_LOCK_IT">
+        <Down>Junkee.LockIt()</Down>
+      </Action>
     </Category>
   </Layer>
 </Bindings>
