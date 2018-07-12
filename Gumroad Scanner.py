@@ -31,7 +31,7 @@ maxPrice = float(maxPrice) if maxPrice != '' else 0
 def log(text, f='txt'):
     t = time.strftime("%Y%m%d_%H%M%S")
 
-    with open('gumroad_results_'+t+'.'+f, 'w') as file:
+    with open('gumroad_results_'+t+'.'+f, 'w', encoding='utf-8') as file:
         file.write(text)
 
 # Return [(uniqueID str, price float), ..] from gumroad search results page.
@@ -88,10 +88,14 @@ def scrape(page):
 results = []
 pageCount = '1'
 def run():
+    global pageCount
+    print() # Skip a line.
     for i in range(maxResults):
         # Signal interruption from system or user.
         if interrupted:
             break
+        
+        not DEBUG and print('Searching...'+('.'*i), end='\r', flush=True)
 
         # Increments of 8, so 1, 9,.. and so on.
         v = i * 9 if i > 1 else 1
@@ -129,6 +133,8 @@ def run():
                     results.append(x)
 
 def finish():
+    global pageCount
+    
     DEBUG and print(results)
     # Log to file.
     if not results:
@@ -140,7 +146,7 @@ def finish():
             text += '<a href=' + s + ' target=_blank>'+item['title']+'<br>'
     log(text, 'html')
 
-    input('Got '+str(len(results))+' matches saved from '+pageCount+' pages. Press Any Key To Quit...')
+    input('Got '+str(len(results))+' matches saved from '+pageCount+' pages. Press Enter To Quit...')
 
 # Calls.
 run()
