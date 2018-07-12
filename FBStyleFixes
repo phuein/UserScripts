@@ -14,4 +14,30 @@
 div.ego_column:not(.egoOrganicColumn) {
 	display: none !important;
 }
+
+/* Don't apply chat colors for my side. */
+._1nc6 div[class="_d97"] {
+  background-color: #4080ff !IMPORTANT;
+  /* background-color: hsla(258, 46%, 55%, 1); */
+}
+
+/* Hide "Games" section from chat sidebar, to expand chat section. */
+#pagelet_canvas_nav_content {
+	display: none !important;
+}
+
+/* Hide ads but not group suggestions. */
+div.ego_column:not(.egoOrganicColumn) {
+	display: none !important;
+}
+
+/* I want the default text size bigger for chat! Chrome won't do it. */
+body, button, input, label, select, td, textarea {
+	font-size: 14px !important;
+}
+
+/* And make the chat a bit taller. */
+div._1ia._2sz2 {
+	height: 600px !important;
+}
 }
