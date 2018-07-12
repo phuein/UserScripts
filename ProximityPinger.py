@@ -1,5 +1,6 @@
 import time
 import subprocess, platform
+import ctypes
 
 # Windows log event.
 import win32api
@@ -8,12 +9,14 @@ import win32evtlog
 import win32security
 import win32evtlogutil
 
+DEBUG = False
+
 # Settings and data for ping testing.
 class Tester:
     hostPing        = '192.168.1.2'     # The hostname or IP to ping.
-    maxFailures     = 4                 # How many ping failures before considered unreachable.
-    maxSuccess      = 4                 # How many ping successes before considered reachable.
-    waitTry         = 5                 # Time in seconds to wait before next ping test.
+    maxFailures     = 3                 # How many ping failures before considered unreachable.
+    maxSuccess      = 3                 # How many ping successes before considered reachable.
+    waitTry         = 3                 # Time in seconds to wait before next ping test.
 
     pingResult      = ''                # Last return from ping.
     failed          = 0                 # How many times ping has failed.
@@ -56,6 +59,27 @@ def logEvent(e=1):
         sid=my_sid
     )
 
+# Check for Windows station locked.
+user32 = ctypes.windll.User32
+# Another option to check this:
+# OpenDesktop = user32.OpenDesktopA
+# SwitchDesktop = user32.SwitchDesktop
+# DESKTOP_SWITCHDESKTOP = 0x0100
+def isLocked():
+    first = user32.GetForegroundWindow() in {0, 919676}
+    time.sleep(1)
+    second = user32.GetForegroundWindow() in {0, 919676}
+    DEBUG and print('isLocked:', user32.GetForegroundWindow(), 'first & second:', first, second)
+    return first and second
+    # hDesktop = OpenDesktop("default", 0, False, DESKTOP_SWITCHDESKTOP)
+    # unlocked = SwitchDesktop(hDesktop)
+    # return not unlocked
+
+# Check if process is running.
+def isRunning(name):
+    s = subprocess.check_output('tasklist', shell=True)
+    return name in str(s)
+
 # Main loop.
 print("Running Proximity Pinger...")
 while True:
@@ -67,25 +91,30 @@ while True:
     if 'Destination host unreachable.' in result:
         tester.failed       += 1
         tester.successes    = 0
+        DEBUG and tester.failed <= 6 and print('Unreachable:', tester.failed)
     # Reachable.
     else:
         tester.failed       = 0
         tester.successes    += 1
-        state               = tester.away        
+        DEBUG and tester.successes <= 6 and print('Reachable:', tester.successes)
     
     # Device considered reachable.
     if tester.successes == tester.maxSuccess:
         tester.away = False
-        # Log to windows, if changed from away to reachable.
-        if oldState == True:
+        # Log Kill to windows, if changed from away to reachable,
+        # and iSpy is running.
+        DEBUG and print('oldState:', oldState, 'isLocked:', isLocked(), 'isRunning:', isRunning('iSpy.exe'))
+        if oldState is not tester.away and isRunning('iSpy.exe'):
             logEvent()
     
     # Device considered away.
     if tester.failed == tester.maxFailures:
         tester.away = True
-        # Log to windows, if changed from reachable to away.
-        # if oldState == False:
-        #     logEvent(0)
+        # Log Start to windows, if changed from reachable to away,
+        # and station locked, and iSpy is running.
+        DEBUG and print('oldState:', oldState, 'isLocked:', isLocked(), 'isRunning:', isRunning('iSpy.exe'))
+        if oldState is not tester.away and isLocked() and not isRunning('iSpy.exe'):
+            logEvent(0)
     
     # Wait until next ping test.
     time.sleep(tester.waitTry)
