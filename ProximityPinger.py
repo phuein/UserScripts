@@ -14,9 +14,9 @@ DEBUG = False
 # Settings and data for ping testing.
 class Tester:
     hostPing        = '192.168.1.2'     # The hostname or IP to ping.
-    maxFailures     = 3                 # How many ping failures before considered unreachable.
-    maxSuccess      = 3                 # How many ping successes before considered reachable.
-    waitTry         = 3                 # Time in seconds to wait before next ping test.
+    maxFailures     = 2                 # How many ping failures before considered unreachable.
+    maxSuccess      = 1                 # How many ping successes before considered reachable.
+    waitTry         = 2                 # Time in seconds to wait before next ping test.
 
     pingResult      = ''                # Last return from ping.
     failed          = 0                 # How many times ping has failed.
