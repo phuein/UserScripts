@@ -89,6 +89,7 @@ def logEvent(e, desc=''):
     ph = win32api.GetCurrentProcess()
     th = win32security.OpenProcessToken(ph, win32con.TOKEN_READ)
     my_sid = win32security.GetTokenInformation(th, win32security.TokenUser)[0]
+    win32api.CloseHandle(th)
 
     applicationName = 'Automatic Security Tracker'
     eventID     = e                                             # 0 - Stop. 1 - Start.
@@ -178,6 +179,7 @@ while True:
         # Device considered unreachable.
         if tester.failed == tester.maxFailures:
             tester.state = True
+
             # Log START to windows, if iSpy is not running.
             if not running:
                 # Except in away mode.
@@ -187,6 +189,7 @@ while True:
         # Device considered reachable.
         elif tester.successes == tester.maxSuccess:
             tester.state = False
+
             # Log STOP to windows, only if it was previously away,
             # and if iSpy is running.
             if oldState is not tester.state and running:
@@ -211,10 +214,11 @@ while True:
         # if station is unlocked, and iSpy is running.
         elif not locked:
             tester.state = False
+            # Reset returning for next lock in awayMode.
+            tester.returned = False
+
             if oldState is not tester.state:
                 logEvent(0)
-                # Reset returning for next lock in awayMode.
-                tester.returned = False
 
     # Wait until next check.
     time.sleep(tester.waitTry)
