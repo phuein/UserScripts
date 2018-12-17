@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Facebook Notifications Highlighter
 // @namespace    http://www.JamesKoss.com/
-// @version      2.5
+// @version      2.55
 // @description  Highlights your interesting notifications, with an option to hide the unimportant ones.
 // @author       James Koss
 // @match        https://www.facebook.com/*
@@ -45,7 +45,8 @@
 			'also commented on her post',
 			'also commented on their post',
 			['replied to', 'on your'],
-			['marked', 'safe']
+			['marked', 'safe'],
+            'replied to his'
 		],
 		'react': [
 			//'likes your',
@@ -59,7 +60,8 @@
 			'added a photo of you',
 			'invited you to join',
 			'is live now',
-            'now a member of'
+            'now a member of',
+            'on your timeline'
 		],
 		'mod': [
 			'approved your',
@@ -261,7 +263,10 @@
 					~current.dataset.gt.indexOf(':"event_joined_nearby"') ||
 				    ~current.dataset.gt.indexOf(':"app_notification"') ||
                     ~current.dataset.gt.indexOf(':"message_request"') ||
-                    ~current.dataset.gt.indexOf(':"appeal_content_block_message_update"')) {
+                    ~current.dataset.gt.indexOf(':"watch_party_started_implicit"') ||
+                    ~current.dataset.gt.indexOf(':"appeal_content_block_message_update"') ||
+                    ~current.dataset.gt.indexOf(':"group_r2j_approved"') ||
+                    ~current.dataset.gt.indexOf(':"mention"')) {
 					match = 1;
 				}
 				// React notifications.
