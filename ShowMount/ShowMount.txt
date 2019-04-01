@@ -1,16 +1,15 @@
 ## APIVersion: 100026
-## Title: NewAddon
-## Version: 1.23
-## Author: Developer
-## Description: NewAddon description.
-## SavedVariables: NewAddonSavedVariables
+## Title: ShowMount
+## Version: 1.21
+## Author: phuein & Sponsored by ShadowOFMen from Tamriel Crown Exchange
+## Description: Quickly toggle between two selected mounts with a chat /cmd or hotkey.
+## SavedVariables: ShowMountSavedVariables
 ## OptionalDependsOn: LibAddonMenu-2.0
 
 Languages\en.lua
 Languages\$(language).lua
 
 Bindings.xml
-NewAddon.xml
 
 LibStub\LibStub.lua
 
@@ -31,5 +30,5 @@ LibAddonMenu-2.0\controls\texture.lua
 LibAddonMenu-2.0\controls\iconpicker.lua
 LibAddonMenu-2.0\controls\divider.lua
 
-NewAddon.lua
+ShowMount.lua
 Settings.lua

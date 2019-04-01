@@ -1,42 +1,84 @@
-if NBUI == nil then NBUI = {} end
-
 local localization_strings = {
 		SI_NBUI_ADDON_NAME        = "Notebook",
 		SI_NBUI_ADDONOPTIONS_NAME = "Notebook Options",
 		SI_NBUI_AUTHOR            = "Bloodspill & phuein",
-		SI_NBUI_VERSION_NUM       = "|c00FF004.1|r",
 			
 		-- Settings Panel
 		SI_NBUI_DESCRIPTION_INFO = "A Virtual Notebook.",
 		
-		SI_NBUI_HEADER_GENERAL = "General Settings",
+		SI_NBUI_HEADER_BOOK 		= "Book",
+		SI_NBUI_HEADER_COLORS 		= "Colors",
+		SI_NBUI_HEADER_INTERACTIVE 	= "Interactive",
 		
-		SI_NBUI_SHOWTITLE_LABEL   = "Show Title",
-		SI_NBUI_SHOWTITLE_TOOLTIP = "Displays the title of the book.",
+		SI_NBUI_SHOWTITLE_NAME   	= "Show Title",
+		SI_NBUI_SHOWTITLE_TOOLTIP 	= "Displays the title of the book.",
 		
-		SI_NBUI_TITLE_LABEL   = "Book Title",
-		SI_NBUI_TITLE_TOOLTIP = "Changes the title of the book.",
+		SI_NBUI_TITLE_NAME   	= "Book Title",
+		SI_NBUI_TITLE_TOOLTIP 	= "Changes the title of the book.",
 		
-		SI_NBUI_COLOR_LABEL   = "Book Color",
-		SI_NBUI_COLOR_TOOLTIP = "Changes the color of the book.",
+		SI_NBUI_COLOR_NAME   	= "Book Color",
+		SI_NBUI_COLOR_TOOLTIP 	= "Changes the color of the book.",
 		
-		SI_NBUI_DIALOG         = "Confirmation Dialogs",
-		SI_NBUI_DIALOG_TOOLTIP = "Turns on/off confirmation dialogs.",
-		
-		SI_NBUI_LOCK_LABEL   = "Lock Position",
-		SI_NBUI_LOCK_TOOLTIP = "This allows you to secure the notebook in place so that it can not be moved.",
-		
-		SI_NBUI_BUTTON_LABEL   = "Show Chat Button",
-		SI_NBUI_BUTTON_TOOLTIP = "Adds a button in the chat window to open/close the book.",
+		SI_NBUI_NEWPAGETITLE_NAME    = "Default New Page Title",
+		SI_NBUI_NEWPAGETITLE_TOOLTIP = "Sets a default title for new pages. Empty this to default back to time and date.",
 
-		SI_NBUI_OFFSETMAX_LABEL   = "Offset Maximized Chat Button",
-		SI_NBUI_OFFSETMAX_TOOLTIP = "Offsets the button in the maximized chat window.",
+		SI_NBUI_ACCOUNTWIDE_NAME     = "Account-Wide Notebook",
+		SI_NBUI_ACCOUNTWIDE_MAINTEXT = "This will Reload the UI immediately! Do you wish to continue?",
+		SI_NBUI_ACCOUNTWIDE_TOOLTIP  = "One Notebook for all characters in your account.",
+
+		SI_NBUI_ACCOUNTDELETE  		  = "Overwrite Account-Wide",
+		SI_NBUI_ACCOUNTDELETE_TOOLTIP = "Overwrites the Account-Wide Notebook with the current character's pages.",
+
+		SI_NBUI_DIALOG         	= "Confirmation Dialogs",
+		SI_NBUI_DIALOG_TOOLTIP 	= "Turns confirmation dialogs On / Off.",
 		
-		SI_NBUI_OFFSETMIN_LABEL   = "Offset Minimized Chat Button",
-		SI_NBUI_OFFSETMIN_TOOLTIP = "Offsets the button in the minimized chat window.",
+		SI_NBUI_LOCK_NAME   	= "Lock Position",
+		SI_NBUI_LOCK_TOOLTIP 	= "This allows you to secure the notebook in place so that it can not be moved.",
 		
+		SI_NBUI_BUTTON_NAME   	= "Show Chat Button",
+		SI_NBUI_BUTTON_TOOLTIP 	= "Adds a button in the chat window to open/close the book.",
+
+		SI_NBUI_OFFSETMAX_NAME   	= "Offset Maximized Chat Button",
+		SI_NBUI_OFFSETMAX_TOOLTIP 	= "Offsets the button in the maximized chat window.",
+		
+		SI_NBUI_OFFSETMIN_NAME   	= "Offset Minimized Chat Button",
+		SI_NBUI_OFFSETMIN_TOOLTIP 	= "Offsets the button in the minimized chat window.",
+		
+		SI_NBUI_EDITMODE_HOVER_NAME  	= "Edit-Mode on Hover",
+		SI_NBUI_EDITMODE_HOVER_TOOLTIP  = "Switch to page Edit Mode when mouse hovers over the page.",
+
+		SI_NBUI_EDITMODE_CLICK_NAME  	= "Edit-Mode on Click",
+		SI_NBUI_EDITMODE_CLICK_TOOLTIP  = "Switch to page Edit Mode when clicking the page.",
+
+		SI_NBUI_LEAVEEDITMODE_FOCUS_NAME  	= "Leave Edit-Mode on Focus",
+		SI_NBUI_LEAVEEDITMODE_FOCUS_TOOLTIP = "Leave Edit Mode when the page loses focus (clicking outside of it.)",
+
+		SI_NBUI_LEAVEEDITMODE_EXIT_NAME  	= "Leave Edit-Mode on Exit",
+		SI_NBUI_LEAVEEDITMODE_EXIT_TOOLTIP  = "Leave Edit Mode when mouse exits (moves out of) the page.",
+		
+		SI_NBUI_DBLCLICKPAGE_NAME  		= "Double-Click To Select All",
+		SI_NBUI_DBLCLICKPAGE_TOOLTIP  	= "Selects the whole page text, instead of a word, when double-clicking.",
+
+		SI_NBUI_EMOTEREAD_NAME  	= "Emote When Reading",
+		SI_NBUI_EMOTEREAD_TOOLTIP  	= "Emote /read when opening the Notebook.",
+
+		SI_NBUI_EMOTEIDLE_NAME  	= "Emote Idle When Closed",
+		SI_NBUI_EMOTEIDLE_TOOLTIP  	= "Emote /idle after closing the Notebook.",
+
+		SI_NBUI_SELECTLINE_NAME  	= "Select Line with Tripleclick",
+		SI_NBUI_SELECTLINE_TOOLTIP  = "Select current line by triple-clicking your mouse.",
+
+		SI_NBUI_SELECTCOLOR_NAME	= "Text Selection Color",
+		SI_NBUI_SELECTCOLOR_TOOLTIP	= "Changes the color of your text selection.",
+		
+		SI_NBUI_TEXTCOLOR_NAME		= "Text Color",
+		SI_NBUI_TEXTCOLOR_TOOLTIP	= "Changes the text color of your notebook title, page title, and content.",
+
+		SI_NBUI_FORMATTEDMODE_NAME		= "Display Formatted Text Mode",
+		SI_NBUI_FORMATTEDMODE_TOOLTIP	= "Displays formatted text (colors, images..) over the edit text box.",
+
 		SI_NBUI_WARNING = "This setting must be applied and will result in a load screen.",
-		
+
 		-- UI Panel	
 		SI_NBUI_CLOSEBUTTON_TOOLTIP = "Close the book.",
 		

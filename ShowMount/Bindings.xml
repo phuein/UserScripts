@@ -1,0 +1,24 @@
+<Bindings>
+  <Layer name="SI_KEYBINDINGS_CATEGORY_GENERAL">
+    <Category name="ShowMount">
+      <!-- <Action name="SHOWMOUNT_TOGGLE">
+		    <Up>ShowMount.ToggleMount()</Up>
+      </Action> -->
+      <Action name="SHOWMOUNT_SMONE">
+        <Up>ShowMount.ActivateMount("One")</Up>
+      </Action>
+      <Action name="SHOWMOUNT_SMTWO">
+        <Up>ShowMount.ActivateMount("Two")</Up>
+      </Action>
+      <Action name="SHOWMOUNT_SMTHREE">
+        <Up>ShowMount.ActivateMount("Three")</Up>
+      </Action>
+      <Action name="SHOWMOUNT_SMFOUR">
+        <Up>ShowMount.ActivateMount("Four")</Up>
+      </Action>
+      <Action name="SHOWMOUNT_SMRANDOM">
+        <Up>ShowMount.ActivateMount("Random")</Up>
+      </Action>
+    </Category>
+  </Layer>
+</Bindings>

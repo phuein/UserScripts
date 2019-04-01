@@ -1,9 +1,9 @@
 ## Title: Notebook 2018
 ## Description: A notebook.
-## APIVersion: 100023
-## Version: 4.2
+## APIVersion: 100026
+## Version: 4.53
 ## Author: Bloodspill & phuein
-## SavedVariables: NBUISVDB
+## SavedVariables: NBUISVDB NBUISVDBACCT
 ## OptionalDependsOn: LibStub LibAddonMenu-2.0
 
 Lang/en.lua
@@ -11,23 +11,23 @@ Lang/$(language).lua
 
 ## Libraries:
 Libs\LibStub\LibStub.lua
-Libs\LibAddonMenu-2.0\LibAddonMenu-2.0.lua
-Libs\LibAddonMenu-2.0\controls\panel.lua
-Libs\LibAddonMenu-2.0\controls\submenu.lua
-Libs\LibAddonMenu-2.0\controls\button.lua
-Libs\LibAddonMenu-2.0\controls\checkbox.lua
-Libs\LibAddonMenu-2.0\controls\colorpicker.lua
-Libs\LibAddonMenu-2.0\controls\custom.lua
-Libs\LibAddonMenu-2.0\controls\description.lua
-Libs\LibAddonMenu-2.0\controls\dropdown.lua
-Libs\LibAddonMenu-2.0\controls\editbox.lua
-Libs\LibAddonMenu-2.0\controls\header.lua
-Libs\LibAddonMenu-2.0\controls\slider.lua
-Libs\LibAddonMenu-2.0\controls\texture.lua
-Libs\LibAddonMenu-2.0\controls\iconpicker.lua
+libs\LibAddonMenu-2.0\LibAddonMenu-2.0.lua
+libs\LibAddonMenu-2.0\controls\panel.lua
+libs\LibAddonMenu-2.0\controls\submenu.lua
+libs\LibAddonMenu-2.0\controls\button.lua
+libs\LibAddonMenu-2.0\controls\checkbox.lua
+libs\LibAddonMenu-2.0\controls\colorpicker.lua
+libs\LibAddonMenu-2.0\controls\custom.lua
+libs\LibAddonMenu-2.0\controls\description.lua
+libs\LibAddonMenu-2.0\controls\dropdown.lua
+libs\LibAddonMenu-2.0\controls\editbox.lua
+libs\LibAddonMenu-2.0\controls\header.lua
+libs\LibAddonMenu-2.0\controls\slider.lua
+libs\LibAddonMenu-2.0\controls\texture.lua
+libs\LibAddonMenu-2.0\controls\iconpicker.lua
+libs\LibAddonMenu-2.0\controls\divider.lua
 
 Startup.lua
-Defaults.lua
 Notebook1.lua
 Settings.lua
 Bindings.xml

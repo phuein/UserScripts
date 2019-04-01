@@ -1,24 +1,53 @@
 if NBUI == nil then NBUI = {} end
 
 local buttonCount = 1
+local savedVarsStringMax = 1900
+
 ---------------------------------------------------------------------------------------------------
+function Set_Button_TextColors(button)
+	-- Tinker with text color from settings.
+	local color = {unpack(NBUI.db.NB1_TextColor)};
+	
+	color[4] = 0.6
+	button:SetMouseOverFontColor(unpack(color))
+	
+	color[4] = 0.7
+	button:SetNormalFontColor(unpack(color))
+	
+	color[4] = 0.8
+	button:SetPressedFontColor(unpack(color))
+end
+
 function Create_NB1_IndexButton(NB1_IndexPool)
 	local button = WINDOW_MANAGER:CreateControlFromVirtual("NB1_Index" .. NB1_IndexPool:GetNextControlId(), NBUI.NB1LeftPage_ScrollContainer.scrollChild, "ZO_DefaultTextButton")
 	local anchorBtn = buttonCount == 1 and NBUI.NB1LeftPage_ScrollContainer.scrollChild or NB1_IndexPool:AcquireObject(buttonCount-1)
 		button:SetAnchor(TOPLEFT, anchorBtn, buttonCount == 1 and TOPLEFT or BOTTOMLEFT)
-		button:SetClickSound(SOUNDS.BOOK_PAGE_TURN)			
-		button:SetFont("ZoFontBookPaper")		
+		button:SetClickSound(SOUNDS.BOOK_PAGE_TURN)
+		button:SetFont("ZoFontBookPaper")
 		button:SetHandler("OnClicked", function(self)
 			currentlyViewing = self.id
-		
-			NBUI.NB1RightPage_Title:SetText(UnprotectText(self.data.title))
-			NBUI.NB1RightPage_Title:SetCursorPosition(TOPLEFT)
 			
-			NBUI.NB1RightPage_Contents:SetText(UnprotectText(self.data.text))
-			NBUI.NB1RightPage_Contents:SetCursorPosition(TOPLEFT)
+			NBUI.NB1RightPage_Title:SetHidden(false)
+			NBUI.NB1RightPage_ScrollContainer:SetHidden(false)
+			
+			-- Bug with unsaved variables from game.
+			local title = self.data.title
+			if title == nil then
+				title = ""
+			end
+			NBUI.NB1RightPage_Title:SetText(UnprotectText(title))
+			NBUI.NB1RightPage_Title:SetCursorPosition(0)
+			
+			-- Bug with unsaved variables from game.
+			local text = self.data.text
+			if text == nil then
+				text = ""
+			end
+			NBUI.NB1RightPage_Contents:SetText(UnprotectText(text))
+			NBUI.NB1RightPage_Contents:SetCursorPosition(0)
 			
 			NBUI.NB1SelectedPage_Button:ClearAnchors()
-			NBUI.NB1SelectedPage_Button:SetAnchorFill(self)			
+			NBUI.NB1SelectedPage_Button:SetAnchorFill(self)
 			-- hides these buttons
 			NBUI.NB1SavePage_Button:SetHidden(true)
 			NBUI.NB1UndoPage_Button:SetHidden(true)
@@ -28,12 +57,11 @@ function Create_NB1_IndexButton(NB1_IndexPool)
 			NBUI.NB1DeletePage_Button:SetHidden(false)
 			NBUI.NB1MovePageUp_Button:SetHidden(false)
 			NBUI.NB1MovePageDown_Button:SetHidden(false)
-		end)		
-		button:SetHorizontalAlignment(TEXT_ALIGN_LEFT)		
-		button:SetMouseOverFontColor(0, 0, 0, 0.4)
-		button:SetNormalFontColor(0, 0, 0, 0.7)
-		button:SetPressedFontColor(0, 0, 0, 0.9)		
+			NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(true)
+		end)
 		button:SetWidth(400)
+		button:SetHorizontalAlignment(TEXT_ALIGN_LEFT)
+		Set_Button_TextColors(button)
 		
 	buttonCount = buttonCount + 1
 	return button
@@ -47,6 +75,7 @@ function Populate_NB1_ScrollList()
 		button.id = i
 		button:SetText(UnprotectText(button.data.title))
 		button:SetHidden(false)
+		Set_Button_TextColors(button)
 	end
 	local activePages = NB1_IndexPool:GetActiveObjectCount()
 	if activePages > numPages then
@@ -63,6 +92,8 @@ end
 --  Interface  --
 ---------------------------------------------------------------------------------------------------
 function CreateNB1()
+	-- To let elements tweak text alpha.
+	local color = {unpack(NBUI.db.NB1_TextColor)};
 ---------------------------------------------------------------------------------------------------
 	NBUI.NB1MainWindow = WINDOW_MANAGER:CreateTopLevelWindow("NBUI_NB1MainWindow")
 		SCENE_MANAGER:RegisterTopLevel(NBUI.NB1MainWindow, false)	
@@ -110,7 +141,7 @@ function CreateNB1()
 ---------------------------------------------------------------------------------------------------	
 	NBUI.NB1LeftPage_Title = WINDOW_MANAGER:CreateControl("NBUI_NB1LeftPage_Title", NBUI.NB1MainWindow, CT_LABEL)
 		NBUI.NB1LeftPage_Title:SetAnchor(CENTER, NBUI.NB1LeftPage_TitleBackdrop, CENTER, 0, 0)
-		NBUI.NB1LeftPage_Title:SetColor(0, 0, 0, 0.7)	
+		NBUI.NB1LeftPage_Title:SetColor(unpack(NBUI.db.NB1_TextColor))
 		NBUI.NB1LeftPage_Title:SetDrawLayer(0)		
 		NBUI.NB1LeftPage_Title:SetDrawLevel(2)
 		NBUI.NB1LeftPage_Title:SetDrawTier(0) 			
@@ -138,7 +169,7 @@ function CreateNB1()
 ---------------------------------------------------------------------------------------------------		
 	NBUI.NB1LeftPage_Separator = WINDOW_MANAGER:CreateControl("NBUI_NB1LeftPage_Separator", NBUI.NB1MainWindow, CT_TEXTURE)		
 		NBUI.NB1LeftPage_Separator:SetAnchor(CENTER, NBUI.NB1LeftPage_TitleBackdrop, BOTTOM, 0, 0)		
-		NBUI.NB1LeftPage_Separator:SetColor(0, 0, 0, 0.7)		
+		NBUI.NB1LeftPage_Separator:SetColor(unpack(NBUI.db.NB1_TextColor))
 		NBUI.NB1LeftPage_Separator:SetDimensions(420, 2)
 		NBUI.NB1LeftPage_Separator:SetDrawLayer(1)		
 		NBUI.NB1LeftPage_Separator:SetDrawLevel(1)
@@ -349,7 +380,7 @@ function CreateNB1()
 		NBUI.NB1RightPage_Backdrop:SetEdgeColor(0, 0, 0, 0)
 ---------------------------------------------------------------------------------------------------	
 	NBUI.NB1RightPage_Title = WINDOW_MANAGER:CreateControlFromVirtual("NBUI_NB1RightPage_Title", NBUI.NB1RightPage_TitleBackdrop, "ZO_DefaultEditForBackdrop")
-		NBUI.NB1RightPage_Title:SetColor(0, 0, 0, 0.7)			
+		NBUI.NB1RightPage_Title:SetColor(unpack(NBUI.db.NB1_TextColor))
 		NBUI.NB1RightPage_Title:SetDrawLayer(0)
 		NBUI.NB1RightPage_Title:SetDrawLevel(2)
 		NBUI.NB1RightPage_Title:SetDrawTier(0)		
@@ -359,7 +390,7 @@ function CreateNB1()
 			NBUI.NB1RightPage_Contents:TakeFocus() 
 		end)
 		NBUI.NB1RightPage_Title:SetHandler("OnMouseDoubleClick", function(self) 
-			zo_callLater(function() self:SelectAll() end, 0.5)
+			zo_callLater(function() self:SelectAll() end, 100)
 		end) 
 		NBUI.NB1RightPage_Title:SetHandler("OnTextChanged", function(self)
 				local NB1Pages = NBUI.db.NB1Pages[currentlyViewing]
@@ -372,32 +403,55 @@ function CreateNB1()
 				end
 			end)
 		NBUI.NB1RightPage_Title:SetMaxInputChars(33)
+		NBUI.NB1RightPage_Title:SetHidden(true)
 ---------------------------------------------------------------------------------------------------		
 	NBUI.NB1RightPage_ScrollContainer = WINDOW_MANAGER:CreateControlFromVirtual("NBUI_NB1RightPage_ScrollContainer", NBUI.NB1MainWindow, "ZO_ScrollContainer")
-		NBUI.NB1RightPage_ScrollContainer.scrollChild = NBUI.NB1RightPage_ScrollContainer:GetNamedChild("ScrollChild")		
-		NBUI.NB1RightPage_ScrollContainer:SetAnchorFill(NBUI.NB1RightPage_Backdrop)
+		NBUI.NB1RightPage_ScrollContainer.scrollChild = NBUI.NB1RightPage_ScrollContainer:GetNamedChild("ScrollChild")
+		-- NBUI.NB1RightPage_ScrollContainer:SetAnchorFill(NBUI.NB1RightPage_Backdrop)
+		NBUI.NB1RightPage_ScrollContainer:ClearAnchors()
+		NBUI.NB1RightPage_ScrollContainer:SetAnchor(TOPLEFT, NBUI.NB1RightPage_Backdrop, TOPLEFT, 0, 0)
+		NBUI.NB1RightPage_ScrollContainer:SetAnchor(BOTTOMRIGHT, NBUI.NB1RightPage_Backdrop, BOTTOMRIGHT, 0, -30) -- Extra space on bottom of page.
 		NBUI.NB1RightPage_ScrollContainer:SetDrawLayer(0)	
 		NBUI.NB1RightPage_ScrollContainer:SetDrawLevel(2)
 		NBUI.NB1RightPage_ScrollContainer:SetDrawTier(0)
+		NBUI.NB1RightPage_ScrollContainer:SetHidden(true)
+		
 ---------------------------------------------------------------------------------------------------	
-	NBUI.NB1RightPage_Contents = WINDOW_MANAGER:CreateControlFromVirtual("NBUI_NB1RightPage_Contents", NBUI.NB1RightPage_ScrollContainer, "ZO_DefaultEditMultiLineForBackdrop")	
-		NBUI.NB1RightPage_Contents:SetColor(0, 0, 0, 0.7)		
+
+	NBUI.NBUI_NB1RightPage_CharacterCounter = WINDOW_MANAGER:CreateControl("NBUI_NB1RightPage_CharacterCounter", NBUI.NB1RightPage_ScrollContainer, CT_LABEL)
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetAnchor(BOTTOMRIGHT, NBUI.NB1RightPage_ScrollContainer, BOTTOMRIGHT, -30, 25)
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetFont("$(ANTIQUE_FONT)|14")
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetDrawLayer(0)
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetDrawLevel(3)
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetDrawTier(1)
+	color[4] = 0.5
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetColor(unpack(color))
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(true)
+	
+---------------------------------------------------------------------------------------------------	
+	NBUI.NB1RightPage_Contents = WINDOW_MANAGER:CreateControlFromVirtual("NBUI_NB1RightPage_Contents", NBUI.NB1RightPage_ScrollContainer, "ZO_DefaultEditMultiLineForBackdrop")
+		NBUI.NB1RightPage_Contents:ClearAnchors()
+		NBUI.NB1RightPage_Contents:SetAnchor(TOPLEFT, NBUI.NB1RightPage_ScrollContainer, TOPLEFT, 6, 5)
+		NBUI.NB1RightPage_Contents:SetHeight(NBUI.NB1RightPage_ScrollContainer:GetHeight())
+		NBUI.NB1RightPage_Contents:SetWidth(NBUI.NB1RightPage_ScrollContainer:GetWidth()-20)
+		NBUI.NB1RightPage_Contents:SetColor(unpack(NBUI.db.NB1_TextColor))
 		NBUI.NB1RightPage_Contents:SetDrawLayer(0)
 		NBUI.NB1RightPage_Contents:SetDrawLevel(3)
-		NBUI.NB1RightPage_Contents:SetDrawTier(1)	
+		NBUI.NB1RightPage_Contents:SetDrawTier(1)
+		NBUI.NB1RightPage_Contents:SetMaxInputChars(3000) -- Visual max, higher than saveable max.
 		NBUI.NB1RightPage_Contents:SetFont("ZoFontBookPaper")
-		NBUI.NB1RightPage_Contents:SetMaxInputChars(2048)
-		NBUI.NB1RightPage_Contents:SetMultiLine(true)
-		NBUI.NB1RightPage_Contents:SetHidden(true)
+		-- NBUI.NB1RightPage_Contents:SetMultiLine(true)
+		if NBUI.db.NB1_FormattedMode then NBUI.NB1RightPage_Contents:SetHidden(true) end
+		NBUI.NB1RightPage_Contents:SetSelectionColor(unpack(NBUI.db.NB1_SelectionColor))
 		
 		NBUI.NB1RightPage_Contents:SetHandler("OnFocusLost", function()
-			if NBUI.db.NB1_LeaveEditModeOnFocus then
+			if NBUI.db.NB1_FormattedMode and NBUI.db.NB1_LeaveEditModeOnFocus then
 				NBUI.NB1RightPage_Contents:SetHidden(true)
 				NBUI.NB1RightPage_ContentsLabel:SetHidden(false)
 			end
 		end)
 		NBUI.NB1RightPage_Contents:SetHandler("OnMouseExit", function()
-			if NBUI.db.NB1_LeaveEditModeOnExit then
+			if NBUI.db.NB1_FormattedMode and NBUI.db.NB1_LeaveEditModeOnExit then
 				NBUI.NB1RightPage_Contents:SetHidden(true)
 				NBUI.NB1RightPage_ContentsLabel:SetHidden(false)
 			end
@@ -407,9 +461,35 @@ function CreateNB1()
 		NBUI.NB1RightPage_Contents:SetHandler("OnTab", function() 
 			NBUI.NB1RightPage_Title:TakeFocus() 
 		end)
-		-- NBUI.NB1RightPage_Contents:SetHandler("OnMouseDoubleClick", function(self) 
-		-- 	zo_callLater(function() self:SelectAll() end, 0.5)
-		-- end)
+
+		NBUI.NB1RightPage_Contents:SetHandler("OnMouseDoubleClick", function(self)
+			-- Select all page, from Settings.
+			if NBUI.db.NB1_DoubleClickSelectPage then
+				zo_callLater(function() self:SelectAll() end, 100)
+			end
+
+			-- Track double-clicking.
+			self.DoubleClicked = true
+
+			-- Catch triple-clicks.
+			-- Avoid duplicates if already running.
+			if not self.TripleClicking then
+				self.TripleClicking = true
+				zo_callLater(function() self.TripleClicking = false end, 500)
+			end
+		end)
+
+		-- Catch triple-clicks.
+		NBUI.NB1RightPage_Contents:SetHandler("OnMouseUp", function(self, button, upInside)
+			if button == MOUSE_BUTTON_INDEX_LEFT and upInside then
+				if NBUI.db.NB1_SelectLine and not self.DoubleClicked and self.TripleClicking then
+					NBUI.SelectLine(self)
+				end
+			end
+			-- Do not confuse with triple-clicking.
+			if self.DoubleClicked then self.DoubleClicked = false end
+		end)
+
 		NBUI.NB1RightPage_Contents:SetHandler("OnTextChanged", function(self)
 			local page = NBUI.db.NB1Pages[currentlyViewing]
 			local text = self:GetText()
@@ -420,20 +500,35 @@ function CreateNB1()
 				NBUI.NB1SavePage_Button:SetHidden(true)
 				NBUI.NB1UndoPage_Button:SetHidden(true)				
 			end
+			
 			-- Update label display.
 			NBUI.NB1RightPage_ContentsLabel:SetText(text)
+			NBUI.NB1RightPage_ContentsLabel:UpdateHeight()
+			
+			-- Update character counter.
+			-- NOTE: SavedVars won't save a string with over 2,000 character bytes.
+			local textLen = #text
+			if textLen > savedVarsStringMax then
+				NBUI.NB1SavePage_Button:SetHidden(true)
+			end
+			NBUI.NBUI_NB1RightPage_CharacterCounter:SetText(textLen .. ' / ' .. savedVarsStringMax)
+			NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(false)
 		end)
 		
 ---------------------------------------------------------------------------------------------------	
-	NBUI.NB1RightPage_ContentsLabel = WINDOW_MANAGER:CreateControl("NBUI_NB1RightPage_ContentsLabel", NBUI.NB1RightPage_ScrollContainer, CT_LABEL)	
-		NBUI.NB1RightPage_ContentsLabel:SetAnchorFill(NBUI.NB1RightPage_Contents)
-		NBUI.NB1RightPage_ContentsLabel:SetColor(0, 0, 0, 0.7)		
+	NBUI.NB1RightPage_ContentsLabel = WINDOW_MANAGER:CreateControl("NBUI_NB1RightPage_ContentsLabel", NBUI.NB1RightPage_ScrollContainer.scrollChild, CT_LABEL)	
+		NBUI.NB1RightPage_ContentsLabel:SetAnchor(TOPLEFT, NBUI.NB1RightPage_ScrollContainer.scrollChild, TOPLEFT, 6, 5) -- Matches Editbox.
+		NBUI.NB1RightPage_ContentsLabel:SetWidth(NBUI.NB1RightPage_ScrollContainer:GetWidth()-20)
+		NBUI.NB1RightPage_ContentsLabel:SetHeight(NBUI.NB1RightPage_ScrollContainer:GetHeight())
+		NBUI.NB1RightPage_ContentsLabel:SetColor(unpack(NBUI.db.NB1_TextColor))
 		NBUI.NB1RightPage_ContentsLabel:SetDrawLayer(0)
 		NBUI.NB1RightPage_ContentsLabel:SetDrawLevel(3)
 		NBUI.NB1RightPage_ContentsLabel:SetDrawTier(1)
 		NBUI.NB1RightPage_ContentsLabel:SetFont("ZoFontBookPaper")
 		NBUI.NB1RightPage_ContentsLabel:SetHidden(false)
+		if not NBUI.db.NB1_FormattedMode then NBUI.NB1RightPage_ContentsLabel:SetHidden(true) end
 		NBUI.NB1RightPage_ContentsLabel:SetMouseEnabled(true)
+		-- NBUI.NB1RightPage_ContentsLabel:SetWrapMode(TEXT_WRAP_MODE_ELLIPSIS)	-- TEXT_WRAP_MODE_TRUNCATE / TEXT_WRAP_MODE_ELLIPSIS
 
 		NBUI.NB1RightPage_ContentsLabel:SetHandler("OnMouseEnter", function(self)
 			if NBUI.db.NB1_EditModeHover then
@@ -442,6 +537,7 @@ function CreateNB1()
 				NBUI.NB1RightPage_Contents:TakeFocus()
 			end
 		end)
+
 		NBUI.NB1RightPage_ContentsLabel:SetHandler("OnMouseUp", function(self, button, upInside)
 			if NBUI.db.NB1_EditModeClick and upInside then
 				NBUI.NB1RightPage_Contents:SetHidden(false)
@@ -449,6 +545,18 @@ function CreateNB1()
 				NBUI.NB1RightPage_Contents:TakeFocus()
 			end
 		end)
+
+		NBUI.NB1RightPage_ContentsLabel.UpdateHeight = function(self, hidden)
+			-- Filled height if shorter than page,
+			-- otherwise let dynamic height set it for scrollsbar.
+			NBUI.NB1RightPage_ContentsLabel:SetHeight(0) -- Test dynamic height with current text.
+			zo_callLater(function(self, height)
+				local height = NBUI.NB1RightPage_ScrollContainer:GetHeight()
+				if NBUI.NB1RightPage_ContentsLabel:GetHeight() < height then
+					NBUI.NB1RightPage_ContentsLabel:SetHeight(height)
+				end
+			end, 100)
+		end
 ---------------------------------------------------------------------------------------------------	
 	NBUI.NB1NewPage_Button = WINDOW_MANAGER:CreateControl("NBUI_NB1NewPage_Button", NBUI.NB1MainWindow, CT_BUTTON)
 		NBUI.NB1NewPage_Button:SetAnchor(TOPRIGHT, NBUI.NB1RightPage_TitleBackdrop, TOPRIGHT, 34, -25)		
@@ -456,7 +564,7 @@ function CreateNB1()
 		NBUI.NB1NewPage_Button:SetDimensions(32, 32)
 		NBUI.NB1NewPage_Button:SetDrawLayer(1)
 		NBUI.NB1NewPage_Button:SetDrawLevel(2)
-		NBUI.NB1NewPage_Button:SetDrawTier(0)		
+		NBUI.NB1NewPage_Button:SetDrawTier(0)
 		NBUI.NB1NewPage_Button:SetHandler("OnClicked", function(self)
 			if (NBUI.db.NB1_ShowDialog) then
 				ZO_Dialogs_ShowDialog("NBUI_NB1CONFIRM_NEWPAGE")
@@ -545,7 +653,8 @@ function CreateNB1()
 --  CHAT WINDOW BUTTONS  --------------------------------------------------------------------------
 	NBUI.NB1MaxChatWin_Button = WINDOW_MANAGER:CreateControl("NBUI_NB1MaxChatWin_Button", ZO_ChatWindow, CT_BUTTON)	
 		NBUI.NB1MaxChatWin_Button:SetDimensions(32, 32)
-		NBUI.NB1MaxChatWin_Button:SetAnchor(TOPRIGHT, ZO_ChatWindow, TOPRIGHT, NBUI.db.NB1_MaxOffsetChatButton, 7)
+		NBUI.NB1MaxChatWin_Button:SetAnchor(CENTER, ZO_ChatWindowOptions, CENTER, -40, 1)
+		-- NBUI.NB1MaxChatWin_Button:SetAnchor(TOPRIGHT, ZO_ChatWindow, TOPRIGHT, NBUI.db.NB1_MaxOffsetChatButton, 7)
 		NBUI.NB1MaxChatWin_Button:SetMouseOverTexture("/esoui/art/mainmenu/menubar_journal_down.dds")
 		NBUI.NB1MaxChatWin_Button:SetHidden(not NBUI.db.NB1_ChatButton)				
 		NBUI.NB1MaxChatWin_Button:SetHandler("OnClicked", function(self)
@@ -572,7 +681,8 @@ function CreateNB1()
 
 	NBUI.NB1MinChatWin_Button = WINDOW_MANAGER:CreateControl("NBUI_NB1MinChatWin_Button", ZO_ChatWindowMinBar, CT_BUTTON)
 		NBUI.NB1MinChatWin_Button:SetDimensions(32, 32)
-		NBUI.NB1MinChatWin_Button:SetAnchor(BOTTOMLEFT, ZO_ChatWindowMinBar, BOTTOMLEFT, -3, NBUI.db.NB1_MinOffsetChatButton)
+		NBUI.NB1MinChatWin_Button:SetAnchor(TOPLEFT, ZO_ChatWindowMinBar, nil, 0, 220)
+		-- NBUI.NB1MinChatWin_Button:SetAnchor(BOTTOMLEFT, ZO_ChatWindowMinBar, BOTTOMLEFT, -3, NBUI.db.NB1_MinOffsetChatButton)
 		NBUI.NB1MinChatWin_Button:SetMouseOverTexture("/esoui/art/mainmenu/menubar_journal_down.dds")
 		NBUI.NB1MinChatWin_Button:SetHidden(not NBUI.db.NB1_ChatButton)
 		NBUI.NB1MinChatWin_Button:SetHandler("OnClicked", function(self)
@@ -594,16 +704,36 @@ function CreateNB1()
 		NBUI.NB1MinChatWin_ButtonTexture:SetTexture("/esoui/art/mainmenu/menubar_journal_up.dds")		
 end
 
+-- Return date and time as shown below,
+-- Or the default text set by user.
 function NBUI.NB1NewTitle(self)
-	local h = tonumber(os.date("%I")) .. os.date(":%M") .. os.date("%p"):lower()
+	if NBUI.db.NB1_NewPageTitle ~= "" then
+		return NBUI.db.NB1_NewPageTitle
+	end
+
+	-- Bug catcher.
+	if not os or not os.date then return GetString(SI_NBUI_NEWBUTTON_TITLE) end
+
+	local h = os.date("%I")
+	local m = ":" .. os.date("%M")
+	local pm = os.date("%p")
+
+	-- Bug catcher.
+	if not h or not m or not pm then return GetString(SI_NBUI_NEWBUTTON_TITLE) end
+
+	local t = tonumber(h) .. m .. pm:lower()
 	local date = tonumber(os.date("%d"))
 	-- e.g. 9:39pm Wed', May 2, '18
-	local title = os.date(h .. " %a', %B " .. date .. ", '%y")
+	local title = os.date(t .. " %a', %B " .. date .. ", '%y")
 	return title
 end
 
 function NBUI.NB1NewPage(self)		
 	currentlyViewing = nil
+	
+	NBUI.NB1RightPage_Title:SetHidden(false)
+	NBUI.NB1RightPage_ScrollContainer:SetHidden(false)
+
 	-- Title is current date and time, formatted.
 	NBUI.NB1RightPage_Title:SetText(NBUI.NB1NewTitle())
 	--NBUI.NB1RightPage_Title:SetText("New Page "..#NBUI.db.NB1Pages+1)
@@ -638,26 +768,36 @@ function NBUI.NB1SavePage(self)
 	local pageText = NBUI.NB1RightPage_Contents:GetText()
 	local safe_titleText = ProtectText(titleText)	
 	local safe_pageText = ProtectText(pageText)
-		if currentlyViewing == nil then	--if this was a new page
-			table.insert(NBUI.db.NB1Pages, {["title"] = safe_titleText, ["text"]=safe_pageText})
-			currentlyViewing = #NBUI.db.NB1Pages
-			NBUI.NB1SelectedPage_Button:SetHidden(false)
-			NBUI.NB1SelectedPage_Button:ClearAnchors()
-			self.new = true
-		else
-			NBUI.db.NB1Pages[currentlyViewing].title 	= safe_titleText
-			NBUI.db.NB1Pages[currentlyViewing].text 	= safe_pageText
-			self.new = false
-		end
+	
+	-- NOTE: SavedVars won't save a string with over 2,000 character bytes.
+	local textLen = #safe_pageText
+	-- d(textLen)
+	if textLen > savedVarsStringMax then
+		d('Page is too long to save!')
+		return
+	end
+	
+	if currentlyViewing == nil then	--if this was a new page
+		table.insert(NBUI.db.NB1Pages, {["title"] = safe_titleText, ["text"]=safe_pageText})
+		currentlyViewing = #NBUI.db.NB1Pages
+		NBUI.NB1SelectedPage_Button:SetHidden(false)
+		NBUI.NB1SelectedPage_Button:ClearAnchors()
+		self.new = true
+	else
+		NBUI.db.NB1Pages[currentlyViewing].title 	= safe_titleText
+		NBUI.db.NB1Pages[currentlyViewing].text 	= safe_pageText
+		self.new = false
+	end
 		
 	Populate_NB1_ScrollList()
-		if self.new then
-			-- NBUI.NB1SelectedPage_Button:SetAnchorFill(_G["NBUI_Index"..currentlyViewing])
-			NBUI.NB1SelectedPage_Button:SetAnchorFill(NB1_IndexPool:AcquireObject(currentlyViewing))
-		end
+	if self.new then
+		-- NBUI.NB1SelectedPage_Button:SetAnchorFill(_G["NBUI_Index"..currentlyViewing])
+		NBUI.NB1SelectedPage_Button:SetAnchorFill(NB1_IndexPool:AcquireObject(currentlyViewing))
+	end
 
 	NBUI.NB1SavePage_Button:SetHidden(true)
 	NBUI.NB1UndoPage_Button:SetHidden(true)
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(true)
 end
 NB1ConfirmSaveDialog = {
 	title = { text = GetString(SI_NBUI_SAVEBUTTON_TITLE)},
@@ -709,6 +849,9 @@ function NBUI.NB1DeletePage()
 
 	NBUI.NB1RightPage_Title:Clear()
 	NBUI.NB1RightPage_Contents:Clear()
+
+	NBUI.NB1RightPage_Title:SetHidden(true)
+	NBUI.NB1RightPage_ScrollContainer:SetHidden(true)
 		
 	NBUI.NB1DeletePage_Button:SetHidden(true)
 	NBUI.NB1SavePage_Button:SetHidden(true)				
@@ -785,21 +928,31 @@ end
 function NBUI.NB1KeyBindToggle()
 	SCENE_MANAGER:ToggleTopLevel(NBUI.NB1MainWindow)
 	if NBUI.NB1MainWindow:IsHidden() then
-		-- NBUI.NB1MainWindow:SetHidden(false)
-		-- NBUI.NB1MainWindow:BringWindowToTop(true)
-		-- if not SCENE_MANAGER:IsInUIMode() then
-		-- 	SCENE_MANAGER:SetInUIMode(true)
-		-- end
-		DoCommand("/read")
-		PlaySound(SOUNDS.BOOK_OPEN)
-	else
-		-- NBUI.NB1MainWindow:SetHidden(true)
-		-- if SCENE_MANAGER:IsInUIMode() then
-		-- 	SCENE_MANAGER:SetInUIMode(false)
-		-- end
-		DoCommand("/idle")
 		PlaySound(SOUNDS.BOOK_CLOSE)
+		if NBUI.db.NB1_EmoteIdle then DoCommand("/idle") end
+	else
+		PlaySound(SOUNDS.BOOK_OPEN)
+		if NBUI.db.NB1_EmoteRead then DoCommand("/read") end
 	end
+end
+
+-- Selects the line under cursor for an EditBox control.
+function NBUI.SelectLine(control)
+	local cursor = control:GetCursorPosition()
+	local text = control:GetText()
+
+	-- Find first Newline before cursor, or startoftext.
+	local first = nil
+	local t = text:sub(0, cursor)
+	t = t:reverse()
+	first = t:find('\n')
+	if first == nil then first = 0 else first = cursor-first end
+	-- Find first Newline after cursor, or endoftext.
+	local last = nil
+	last = text:find('\n', cursor)
+	if last == nil then last = text:len() end
+
+	control:SetSelection(first, last)
 end
 
 SLASH_COMMANDS["/nb"] = NBUI.NB1KeyBindToggle
