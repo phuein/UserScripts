@@ -10,6 +10,6 @@ while True:
 
     if foundGame and foundLauncher:
         # k = os.popen('taskkill /IM Bethesda.net_Launcher.exe').read()
-        os.popen('taskkill /IM Bethesda.net_Launcher.exe')
+        os.popen('taskkill /F /IM Bethesda.net_Launcher.exe')
 
     sleep(60 * 5)  # Five minutes.
