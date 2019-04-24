@@ -9,6 +9,11 @@ class Spider(scrapy.Spider):
     custom_settings = {
         'DOWNLOAD_WARNSIZE': 0,
         'CONCURRENT_REQUESTS': 1,
+        'CONCURRENT_ITEMS': 1,
+        'LOG_LEVEL': 'INFO',
+        'EXTENSIONS': {
+            'scrapy.extensions.logstats.LogStats': None,
+        },
     }
 
     count = 0
@@ -21,6 +26,7 @@ class Spider(scrapy.Spider):
             )
 
     def parse_link(self, response):
+        self.logger.info('Crawling... %s', response.request.url)
         for href in response.css('div.res-item a[href$="_4k_png.zip"]::attr(href)').extract():
             yield Request(
                 url=response.urljoin(href),
