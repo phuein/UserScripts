@@ -12,4 +12,4 @@ while True:
         # k = os.popen('taskkill /IM Bethesda.net_Launcher.exe').read()
         os.popen('taskkill /F /IM Bethesda.net_Launcher.exe')
 
-    sleep(60 * 5)  # Five minutes.
+    sleep(60 * 1)  # Minutes.
