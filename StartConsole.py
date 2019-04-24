@@ -53,6 +53,7 @@ while True:
         events = gamepad.read()
     except Exception as e:
         DEBUG and print(e)
+        inputs.devices.gamepads = {}
         # Try again.
         continue
 
