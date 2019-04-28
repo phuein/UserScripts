@@ -42,12 +42,7 @@ function ShowMount.Colorize(text, color)
 end
 
 -- Verbosity.
-ShowMount.Instructions  = ShowMount.Colorize("Press U", "ffa500") .. " to set an active mount," ..
-                        " \nand then use " ..
-                        ShowMount.Colorize("/qm1", "ffa500") ..
-                        " and " ..
-                        ShowMount.Colorize("/qm2", "ffa500") ..
-                        " \nto set your Main and Secondary mounts."
+ShowMount.Instructions  = "Type " .. ShowMount.Colorize("/sm", "ffa500") .. " to select your mounts."
 ShowMount.NoneActive    = "A mount must be Set Active first."
 -- Or EsoStrings[SI_COLLECTIBLEUSAGEBLOCKREASON9] -> "This collectible is not ready yet."
 ShowMount.CooldownMsg   = ShowMount.Colorize("Can't switch mounts that fast.", "ffa500") -- Orange.

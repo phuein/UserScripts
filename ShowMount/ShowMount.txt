@@ -1,6 +1,6 @@
 ## APIVersion: 100026
 ## Title: ShowMount
-## Version: 1.21
+## Version: 1.22
 ## Author: phuein & Sponsored by ShadowOFMen from Tamriel Crown Exchange
 ## Description: Quickly toggle between two selected mounts with a chat /cmd or hotkey.
 ## SavedVariables: ShowMountSavedVariables
