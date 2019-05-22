@@ -1,0 +1,33 @@
+## Title: Notebook 2018
+## Description: An advanced notebook.
+## APIVersion: 100027
+## Version: 4.60
+## Author: phuein & Bloodspill
+## SavedVariables: NBUISVDB NBUISVDBACCT
+## OptionalDependsOn: LibStub LibAddonMenu-2.0
+
+Lang/en.lua
+Lang/$(language).lua
+
+## Libraries:
+Libs\LibStub\LibStub.lua
+libs\LibAddonMenu-2.0\LibAddonMenu-2.0.lua
+libs\LibAddonMenu-2.0\controls\panel.lua
+libs\LibAddonMenu-2.0\controls\submenu.lua
+libs\LibAddonMenu-2.0\controls\button.lua
+libs\LibAddonMenu-2.0\controls\checkbox.lua
+libs\LibAddonMenu-2.0\controls\colorpicker.lua
+libs\LibAddonMenu-2.0\controls\custom.lua
+libs\LibAddonMenu-2.0\controls\description.lua
+libs\LibAddonMenu-2.0\controls\dropdown.lua
+libs\LibAddonMenu-2.0\controls\editbox.lua
+libs\LibAddonMenu-2.0\controls\header.lua
+libs\LibAddonMenu-2.0\controls\slider.lua
+libs\LibAddonMenu-2.0\controls\texture.lua
+libs\LibAddonMenu-2.0\controls\iconpicker.lua
+libs\LibAddonMenu-2.0\controls\divider.lua
+
+Startup.lua
+Notebook1.lua
+Settings.lua
+Bindings.xml

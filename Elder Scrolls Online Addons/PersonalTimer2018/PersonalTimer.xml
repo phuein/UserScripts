@@ -1,0 +1,27 @@
+<GuiXml>
+	<Controls>
+		<TopLevelControl name="PersonalTimerUI" mouseEnabled="true" movable="true" clampedToScreen="true">
+			<Dimensions x="150" y="30" />
+			<Anchor point="CENTER" />
+ 
+<!-- 			<OnUpdate>
+				PersonalTimerUpdate()
+			</OnUpdate>
+			
+  			<OnMoveStop>
+				PersonalTimerMoveStop()
+			</OnMoveStop>
+			
+			<OnMouseUp>
+				PersonalTimerProcessMouseUp(event, button, ctrl, alt, sshift, command)
+			</OnMouseUp> -->
+			
+			<Controls>
+				<Backdrop name="$(parent)Backdrop" inherits="ZO_ThinBackdrop" />
+				<Label name="$(parent)Counter" font="ZoFontWinH5" color="CFDCBD" wrapMode="ELLIPSIS" verticalAlignment="CENTER">
+					<AnchorFill />
+				</Label>
+			</Controls>
+		</TopLevelControl>
+	</Controls>
+</GuiXml>

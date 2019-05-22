@@ -1,0 +1,15 @@
+<Bindings>
+    <Layer name="SI_KEYBINDINGS_LAYER_USER_INTERFACE_SHORTCUTS" allowFallthrough="false">
+        <Category name="Personal Timer">
+            <Action name="PERSONAL_TIMER_START_PAUSE" >
+                <Down>PersonalTimer_ProcessStartPause()</Down>
+            </Action>
+			<Action name="PERSONAL_TIMER_RESET" >
+                <Down>PersonalTimer_ProcessReset()</Down>
+            </Action>
+			<Action name="PERSONAL_TIMER_RESTART" >
+                <Down>PersonalTimer_ProcessRestart()</Down>
+            </Action>
+        </Category>
+    </Layer>
+</Bindings>

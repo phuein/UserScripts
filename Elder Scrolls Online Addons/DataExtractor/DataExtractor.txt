@@ -1,0 +1,32 @@
+## APIVersion: 100027
+## Title: DataExtractor
+## Version: 1.01
+## Author: phuein
+## Description: Exctract data about items and skills.
+## SavedVariables: DataExtractorSavedVariables
+## OptionalDependsOn: LibAddonMenu-2.0
+
+Languages\en.lua
+Languages\$(language).lua
+
+LibStub\LibStub.lua
+
+LibAddonMenu-2.0\LibAddonMenu-2.0.lua
+
+LibAddonMenu-2.0\controls\button.lua
+LibAddonMenu-2.0\controls\checkbox.lua
+LibAddonMenu-2.0\controls\colorpicker.lua
+LibAddonMenu-2.0\controls\custom.lua
+LibAddonMenu-2.0\controls\description.lua
+LibAddonMenu-2.0\controls\divider.lua
+LibAddonMenu-2.0\controls\dropdown.lua
+LibAddonMenu-2.0\controls\editbox.lua
+LibAddonMenu-2.0\controls\header.lua
+LibAddonMenu-2.0\controls\iconpicker.lua
+LibAddonMenu-2.0\controls\panel.lua
+LibAddonMenu-2.0\controls\slider.lua
+LibAddonMenu-2.0\controls\submenu.lua
+LibAddonMenu-2.0\controls\texture.lua
+
+DataExtractor.lua
+Settings.lua

@@ -1,0 +1,18 @@
+<Bindings>
+  <Layer name="SI_KEYBINDINGS_LAYER_USER_INTERFACE_SHORTCUTS" allowFallthrough="false">
+    <Category name="Junkee 2018">
+      <Action name="JUNKEE_JUNK_IT">
+		    <Down>Junkee.JunkIt()</Down>
+      </Action>
+      <Action name="JUNKEE_DELETE_IT">
+		    <Down>Junkee.DeleteIt()</Down>
+      </Action>
+      <Action name="JUNKEE_LINK_IT">
+        <Down>Junkee.LinkIt()</Down>
+      </Action>
+      <Action name="JUNKEE_LOCK_IT">
+        <Down>Junkee.LockIt()</Down>
+      </Action>
+    </Category>
+  </Layer>
+</Bindings>
