@@ -1,6 +1,6 @@
 ## APIVersion: 100027
 ## Title: DataExtractor
-## Version: 1.01
+## Version: 1.11
 ## Author: phuein
 ## Description: Exctract data about items and skills.
 ## SavedVariables: DataExtractorSavedVariables

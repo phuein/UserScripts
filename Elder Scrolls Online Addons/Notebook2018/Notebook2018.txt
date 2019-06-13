@@ -1,7 +1,7 @@
 ## Title: Notebook 2018
 ## Description: An advanced notebook.
 ## APIVersion: 100027
-## Version: 4.60
+## Version: 4.70
 ## Author: phuein & Bloodspill
 ## SavedVariables: NBUISVDB NBUISVDBACCT
 ## OptionalDependsOn: LibStub LibAddonMenu-2.0

@@ -1,20 +1,24 @@
 local localization_strings = {
 		SI_NBUI_ADDON_NAME        = "Notebook",
 		SI_NBUI_ADDONOPTIONS_NAME = "Notebook Options",
-		SI_NBUI_AUTHOR            = "Bloodspill & phuein",
+		SI_NBUI_AUTHOR            = "phuein & Bloodspill",
 
 		-- Settings Panel
 		SI_NBUI_DESCRIPTION_INFO = "A Virtual Notebook.",
 
 		SI_NBUI_HEADER_BOOK 		= "Book",
-		SI_NBUI_HEADER_COLORS 		= "Colors",
+		SI_NBUI_HEADER_THEME 		= "Theme",
 		SI_NBUI_HEADER_INTERACTIVE 	= "Interactive",
+		SI_NBUI_HEADER_EDITMODE 	= "Formatted Display",
 
 		SI_NBUI_SHOWTITLE_NAME   	= "Show Title",
 		SI_NBUI_SHOWTITLE_TOOLTIP 	= "Displays the title of the book.",
 
 		SI_NBUI_TITLE_NAME   	= "Book Title",
 		SI_NBUI_TITLE_TOOLTIP 	= "Changes the title of the book.",
+
+		SI_NBUI_TEXTURE_NAME 	= "Book Texture",
+		SI_NBUI_TEXTURE_TOOLTIP	= "The image used for the style of the book.",
 
 		SI_NBUI_COLOR_NAME   	= "Book Color",
 		SI_NBUI_COLOR_TOOLTIP 	= "Changes the color of the book.",
@@ -34,6 +38,9 @@ local localization_strings = {
 
 		SI_NBUI_LOCK_NAME   	= "Lock Position",
 		SI_NBUI_LOCK_TOOLTIP 	= "This allows you to secure the notebook in place so that it can not be moved.",
+
+		SI_NBUI_ONTOP_NAME   	= "Display on Top",
+		SI_NBUI_ONTOP_TOOLTIP 	= "Show the Notebook over other UI elements, to assist with taking notes.",
 
 		SI_NBUI_BUTTON_NAME   	= "Show Chat Button",
 		SI_NBUI_BUTTON_TOOLTIP 	= "Adds a button in the chat window to open/close the book.",
@@ -106,12 +113,18 @@ local localization_strings = {
 
 		SI_NBUI_PREVIEWBUTTON_TOOLTIP = "Preview this page by rendering colors, padding, and textures.",
 
+		SI_NBUI_CONTEXT_RANDOMLINE = "Copy Random Line",
+		SI_NBUI_CONTEXT_SENDASMAIL = "Send as Mail",
+		SI_NBUI_CONTEXT_COPYFROMMAIL = "Copy from Mail",
+
 		SI_NBUI_YES_LABEL = "Yes",
 		SI_NBUI_NO_LABEL  = "No",
 
 		SI_NBUI_NB1INFORMATION_TOOLTIP = "|c00FF00/nb|r toggles the window on/off.\n|c00FF00/nbs|r toggles the settings on/off.\n\n|c00FF00Tip:|r Selecting a page will undo your changes.",
 
 		SI_NBUI_NB1KEYBIND_LABEL = "Notebook",
+
+		SI_NBUI_ERROR_INBOXSELECT = "|cFFFFFFNOTEBOOK:|r Please select a mail message.",
 	}
 
 for stringId, stringValue in pairs(localization_strings) do

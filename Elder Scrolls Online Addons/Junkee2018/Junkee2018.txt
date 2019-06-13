@@ -1,7 +1,7 @@
 ## Title: |cf4ad42Junkee 2018|cffffff
-## APIVersion: 100026
-## Version: 1.51
-## Author: Thenedus & Denidil & phuein
+## APIVersion: 100027
+## Version: 1.58
+## Author: phuein & Thenedus & Denidil
 ## Description: Provides a keybinding to quickly mark an item as junk or destroy it.
 ## SavedVariables: JunkeeAddonSavedVars
 ## OptionalDependsOn: LibAddonMenu-2.0

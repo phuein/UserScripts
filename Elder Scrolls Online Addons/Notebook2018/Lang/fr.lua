@@ -1,20 +1,24 @@
 local localization_strings = {
 		SI_NBUI_ADDON_NAME        = "Carnet",
 		SI_NBUI_ADDONOPTIONS_NAME = "Options de Carnet",
-		SI_NBUI_AUTHOR            = "Bloodspill & phuein",
+		SI_NBUI_AUTHOR            = "phuein & Bloodspill",
 
 		-- Settings Panel
 		SI_NBUI_DESCRIPTION_INFO = "Un ordinateur portable virtuel.",
 
 		SI_NBUI_HEADER_BOOK 		= "Livre",
-		SI_NBUI_HEADER_COLORS 		= "Couleurs",
+		SI_NBUI_HEADER_THEME 		= "Thème",
 		SI_NBUI_HEADER_INTERACTIVE 	= "Interactive",
+		SI_NBUI_HEADER_EDITMODE 	= "Affichage formaté",
 
 		SI_NBUI_SHOWTITLE_NAME   	= "Afficher le titre",
 		SI_NBUI_SHOWTITLE_TOOLTIP 	= "Affiche le titre du livre.",
 
 		SI_NBUI_TITLE_NAME   	= "Titre De Livre",
 		SI_NBUI_TITLE_TOOLTIP 	= "Change le titre du livre.",
+
+		SI_NBUI_TEXTURE_NAME 	= "Livre de texture",
+		SI_NBUI_TEXTURE_TOOLTIP	= "L'image utilisée pour le style du livre.",
 
 		SI_NBUI_COLOR_NAME   	= "Color Book",
 		SI_NBUI_COLOR_TOOLTIP 	= "Change la couleur du livre.",
@@ -34,6 +38,9 @@ local localization_strings = {
 
 		SI_NBUI_LOCK_NAME   	= "Position Lock",
 		SI_NBUI_LOCK_TOOLTIP 	= "Cela vous permet de sécuriser le portable en place afin qu'il ne peut pas être déplacé.",
+
+		SI_NBUI_ONTOP_NAME 		= "Afficher en haut",
+		SI_NBUI_ONTOP_TOOLTIP 	= "Affichez le bloc-notes par-dessus d'autres éléments de l'interface utilisateur, pour vous aider à prendre des notes.",
 
 		SI_NBUI_BUTTON_NAME   	= "Afficher Chat Button",
 		SI_NBUI_BUTTON_TOOLTIP 	= "Ajoute un bouton dans la fenêtre de chat pour ouvrir / fermer le livre.",
@@ -106,12 +113,18 @@ local localization_strings = {
 
 		SI_NBUI_PREVIEWBUTTON_TOOLTIP = "Prévisualisez cette page en affichant les couleurs, le remplissage et les textures.",
 
+		SI_NBUI_CONTEXT_RANDOMLINE = "Copier une ligne aléatoire",
+		SI_NBUI_CONTEXT_SENDASMAIL = "Envoyer en tant que courrier",
+		SI_NBUI_CONTEXT_COPYFROMMAIL = "Copier depuis le courrier",
+
 		SI_NBUI_YES_LABEL = "Oui",
 		SI_NBUI_NO_LABEL  = "Non",
 
 		SI_NBUI_NB1INFORMATION_TOOLTIP = "|c00FF00/nb|r bascule la fenêtre on/off.\n|c00FF00/nbs|r bascule les réglages on/off.\n\n|c00FF00Conseil:|r La sélection d’une page annule les modifications.",
 
 		SI_NBUI_NB1KEYBIND_LABEL = "Carnet",
+
+		SI_NBUI_ERROR_INBOXSELECT = "|cFFFFFFNOTEBOOK:|r Veuillez sélectionner un message électronique.",
 	}
 
 for stringId, stringValue in pairs(localization_strings) do

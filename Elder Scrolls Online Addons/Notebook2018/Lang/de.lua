@@ -1,20 +1,24 @@
 local localization_strings = {
 		SI_NBUI_ADDON_NAME        = "Notizbuch",
 		SI_NBUI_ADDONOPTIONS_NAME = "Notizbuchoptionen",
-		SI_NBUI_AUTHOR            = "Bloodspill & phuein",
+		SI_NBUI_AUTHOR            = "phuein & Bloodspill",
 
 		-- Settings Panel
 		SI_NBUI_DESCRIPTION_INFO = "Ein virtuelles Notizbuch.",
 
 		SI_NBUI_HEADER_BOOK 		= "Buch",
-		SI_NBUI_HEADER_COLORS 		= "Farben",
+		SI_NBUI_HEADER_THEME 		= "Thema",
 		SI_NBUI_HEADER_INTERACTIVE 	= "Interaktiv",
+		SI_NBUI_HEADER_EDITMODE 	= "Formatierte Anzeige",
 
 		SI_NBUI_SHOWTITLE_NAME 		= "Titel des Notizbuchs anzeigen",
 		SI_NBUI_SHOWTITLE_TOOLTIP 	= "Zeigt den Titel des Notizbuchs an.",
 
 		SI_NBUI_TITLE_NAME 		= "Titel des Notizbuchs",
 		SI_NBUI_TITLE_TOOLTIP 	= "Ändert den Titel der Notizbuchs.",
+
+		SI_NBUI_TEXTURE_NAME 	= "Buch Textur",
+		SI_NBUI_TEXTURE_TOOLTIP	= "Das für den Stil des Buches verwendete Bild.",
 
 		SI_NBUI_COLOR_NAME 		= "Farbe des Notizbuchs",
 		SI_NBUI_COLOR_TOOLTIP 	= "Ändert die Farbe des Notizbuchs.",
@@ -34,6 +38,9 @@ local localization_strings = {
 
 		SI_NBUI_LOCK_NAME 		= "Position sperren",
 		SI_NBUI_LOCK_TOOLTIP 	= "Die Position des Notizbuchs wird fixiert, damit es nicht verschoben werden kann.",
+
+		SI_NBUI_ONTOP_NAME 		= "Oben anzeigen",
+		SI_NBUI_ONTOP_TOOLTIP 	= "Zeigen Sie das Notebook über anderen UI-Elementen an, um Notizen zu machen.",
 
 		SI_NBUI_BUTTON_NAME 	= "Notizbuch-Icon im Chat-Fenster einblenden",
 		SI_NBUI_BUTTON_TOOLTIP 	= "Im Chat-Fenster wird ein Notizbuch-Icon hinzugefügt, damit kann man das Notizbuch öffnen und schließen.",
@@ -106,12 +113,18 @@ local localization_strings = {
 
 		SI_NBUI_PREVIEWBUTTON_TOOLTIP = "Vorschau dieser Notiz durch Rendern von Farben, Auffüllen und Texturen.",
 
+		SI_NBUI_CONTEXT_RANDOMLINE = "Zufällige Zeile kopieren",
+		SI_NBUI_CONTEXT_SENDASMAIL = "Als Mail senden",
+		SI_NBUI_CONTEXT_COPYFROMMAIL = "Aus Mail kopieren",
+
 		SI_NBUI_YES_LABEL = "Ja",
 		SI_NBUI_NO_LABEL  = "Nein",
 
 		SI_NBUI_NB1INFORMATION_TOOLTIP = "|c00FF00/nb|r schaltet das Fenster ein/aus.\n|c00FF00/nbs|r schaltet die Einstellungen ein/aus.\n\n|c00FF00Tipp:|r Wenn Sie eine Seite auswählen, werden die Änderungen rückgängig gemacht.",
 
 		SI_NBUI_NB1KEYBIND_LABEL = "Notizbuch",
+
+		SI_NBUI_ERROR_INBOXSELECT = "|cFFFFFFNOTEBOOK:|r Bitte wählen Sie eine E-Mail-Nachricht aus.",
 	}
 
 for stringId, stringValue in pairs(localization_strings) do

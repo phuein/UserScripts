@@ -128,8 +128,12 @@ local function AddItemFromID(i)
             item.description = flavor
         end
 
+        local icon = GetItemLinkIcon(link)
+        item.icon = icon
+
         -- Category.
         local dataId = GetItemLinkFurnitureDataId(link)
+        -- item.dataId = dataId
         local categoryId, subcategoryId = GetFurnitureDataCategoryInfo(dataId)
         item.category = GetFurnitureCategoryName(categoryId)
 
@@ -259,33 +263,72 @@ local function AddSkill(i, j, line, k, skillsLimit, linesLimit)
     skills[k] = {}
     local skill = skills[k] -- Reference
 
+    -- Base skill, only. Below has passive upgrades and active morphs.
+    local name, icon, earnedRank, passive, ultimate, purchased, progressionIndex, rank = GetSkillAbilityInfo(i, j, k)
+
     -- Only skills with morphs have this.
     local pid = GetProgressionSkillProgressionId(i, j, k)
 
     if pid == 0 then
         -- No morphs, such as passive skills.
-        local name, icon, earnedRank, passive, ultimate, purchased, progressionIndex, rank = GetSkillAbilityInfo(i, j, k)
-
-        -- skill.icon = icon
-        -- skill.earnedRank = earnedRank
-        -- skill.passive = passive
-        -- skill.ultimate = ultimate
-        -- skill.purchased = purchased
-        -- skill.progressionIndex = progressionIndex
-        -- skill.rank = rank
-
         local abilityId = GetSkillAbilityId(i, j, k, false)
 
         skill.name = zo_strformat(SI_ABILITY_NAME, name)
+
         skill.id = abilityId
-        skill.description = GetAbilityDescription(abilityId, MAX_RANKS_PER_ABILITY)
+        local aid = skill.id -- Reference.
+
+        skill.description = GetAbilityDescription(aid, MAX_RANKS_PER_ABILITY)
+
+        skill.icon = icon
+        skill.passive = passive
+        skill.ultimate = ultimate
+
+        -- Same property name for consistency. With passives this means the Skill Level to unlock.
+        skill.earnedRank = earnedRank
+
+        skill.cost, skill.resource = GetAbilityCost(aid, MAX_RANKS_PER_ABILITY)
+        skill.duration = GetAbilityDuration(aid, MAX_RANKS_PER_ABILITY)
+        skill.radius = GetAbilityRadius(aid, MAX_RANKS_PER_ABILITY)
+        skill.minRange, skill.maxRange = GetAbilityRange(aid, MAX_RANKS_PER_ABILITY)
+        skill.isChanneled, skill.castTime, skill.channelTime = GetAbilityCastInfo(aid, MAX_RANKS_PER_ABILITY)
+        skill.isTank, skill.isHealer, skill.isDamage = GetAbilityRoles(aid)
+        skill.target = GetAbilityTargetDescription(aid, MAX_RANKS_PER_ABILITY)
+
+        -- Get upgrades for passives.
+        if passive then
+            local mapped = SKILLS_DATA_MANAGER.abilityIdToProgressionDataMap[aid]
+            local skillData = mapped.skillData
+            -- Holds all the skill levels.
+            local skillProgressions = skillData.skillProgressions
+
+            local upgrades = GetNumPassiveSkillRanks(i, j, k)
+            -- Get all further upgrades.
+            for x = 2, upgrades do
+                skill[x] = {}
+                local s = skill[x] -- Reference.
+
+                s.id = skillProgressions[x].abilityId
+                s.name = zo_strformat(SI_ABILITY_NAME, GetAbilityName(s.id))
+
+                s.description = GetAbilityDescription(s.id)
+
+                -- Same property name for consistency. With passives this means the Skill Level to unlock.
+                s.earnedRank = skillProgressions[x].lineRankNeededToUnlock
+
+                s.cost, s.resource = GetAbilityCost(aid, MAX_RANKS_PER_ABILITY)
+                s.duration = GetAbilityDuration(aid, MAX_RANKS_PER_ABILITY)
+                s.radius = GetAbilityRadius(aid, MAX_RANKS_PER_ABILITY)
+                s.minRange, s.maxRange = GetAbilityRange(aid, MAX_RANKS_PER_ABILITY)
+                s.isChanneled, s.castTime, s.channelTime = GetAbilityCastInfo(aid, MAX_RANKS_PER_ABILITY)
+                s.isTank, s.isHealer, s.isDamage = GetAbilityRoles(aid)
+                s.target = GetAbilityTargetDescription(aid, MAX_RANKS_PER_ABILITY)
+
+                s.parentAbilityId = skill.id
+            end
+        end
     else
         -- Skills with morphs. Ultimates and fighting skills.
-
-        -- skill.index = string.format('%s, %s, %s', i, j, k)
-        -- skill.ProgressionId = pid
-        -- skill.ProgressionName  = GetProgressionSkillProgressionName(i, j, k)
-
         -- Base and two morphs: 0, 1, 2.
         for x = MORPH_SLOT_MIN_VALUE, MORPH_SLOT_MAX_VALUE do
             if x == MORPH_SLOT_MIN_VALUE then
@@ -298,14 +341,29 @@ local function AddSkill(i, j, line, k, skillsLimit, linesLimit)
             end
 
             s.id = GetProgressionSkillMorphSlotAbilityId(pid, x)
-            aid = s.id
+            local aid = s.id -- Reference.
 
-            s.name = GetAbilityName(aid)
+            s.name = zo_strformat(SI_ABILITY_NAME, GetAbilityName(aid))
+
             s.description = GetAbilityDescription(aid, MAX_RANKS_PER_ABILITY)
 
-            -- For morphs.
+            s.icon = GetAbilityIcon(aid)
+            s.passive = false
+            s.ultimate = ultimate
+
+            s.earnedRank = earnedRank -- Only applies to base.
+            s.cost, s.resource = GetAbilityCost(aid, MAX_RANKS_PER_ABILITY)
+            s.duration = GetAbilityDuration(aid, MAX_RANKS_PER_ABILITY)
+            s.radius = GetAbilityRadius(aid, MAX_RANKS_PER_ABILITY)
+            s.minRange, s.maxRange = GetAbilityRange(aid, MAX_RANKS_PER_ABILITY)
+            s.isChanneled, s.castTime, s.channelTime = GetAbilityCastInfo(aid, MAX_RANKS_PER_ABILITY)
+            s.isTank, s.isHealer, s.isDamage = GetAbilityRoles(aid)
+            s.target = GetAbilityTargetDescription(aid, MAX_RANKS_PER_ABILITY)
+
             if x > MORPH_SLOT_MIN_VALUE then
+                -- For morphs.
                 s.parentAbilityId = skill.id
+                s.newEffect = GetAbilityNewEffectLines(aid)
             end
         end
     end
@@ -436,7 +494,7 @@ local function GetAllItems()
 
     local chunk = 100               -- Split the load to avoid crashing the game.
     local chunks = limit / chunk    -- How many chunks to process.
-    local delay = 50                -- ms delay between chunks.
+    local delay = 20                -- ms delay between chunks.
 
     local addedDelay = 0
     for t = 1, chunks do

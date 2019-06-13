@@ -270,10 +270,26 @@ function CreateNBUISettings()
 		},
 	})
 
-	-- Colors category. --
+	-- Theme category. --
 	table.insert(optionsData, {
 		type = "header",
-		name = ZO_HIGHLIGHT_TEXT:Colorize(GetString(SI_NBUI_HEADER_COLORS)),
+		name = ZO_HIGHLIGHT_TEXT:Colorize(GetString(SI_NBUI_HEADER_THEME)),
+	})
+
+	-- Change book texture.
+	table.insert(optionsData, {
+		type = "dropdown",
+		name = GetString(SI_NBUI_TEXTURE_NAME),
+		tooltip = GetString(SI_NBUI_TEXTURE_TOOLTIP),
+		choices = NBUI.BookTexturesNames,
+		choicesValues = NBUI.BookTextures,
+		getFunc = function() return NBUI.db.NB1_BookTexture end,
+		setFunc = function(v)
+			NBUI.db.NB1_BookTexture = v
+			-- Apply.
+			NBUI.NB1MainWindow_Cover:SetTexture(v)
+		end,
+		default = NBUI.settings.NB1_BookTexture,
 	})
 
 	-- Change book color.
@@ -284,10 +300,11 @@ function CreateNBUISettings()
 		getFunc = function() return unpack(NBUI.db.NB1_BookColor) end,
 		setFunc = function(r, g, b, a)
 			NBUI.db.NB1_BookColor = {r, g, b, a}
+			-- Apply.
 			NBUI.NB1MainWindow_Cover:SetColor(r, g, b, a)
 			NBUI.NB1MaxChatWin_ButtonTexture:SetColor(r, g, b, a)
 			NBUI.NB1MinChatWin_ButtonTexture:SetColor(r, g, b, a)
-			end,
+		end,
 		default = { r = NBUI.settings.NB1_BookColor[1], g = NBUI.settings.NB1_BookColor[2], b = NBUI.settings.NB1_BookColor[3], a = NBUI.settings.NB1_BookColor[4]},
 	})
 
@@ -299,13 +316,14 @@ function CreateNBUISettings()
 		getFunc = function() return unpack(NBUI.db.NB1_TextColor) end,
 		setFunc = function(r, g, b, a)
 				NBUI.db.NB1_TextColor = {r, g, b, a}
+				-- Apply.
 				NBUI.NB1LeftPage_Title:SetColor(unpack(NBUI.db.NB1_TextColor))
 				NBUI.NB1LeftPage_Separator:SetColor(unpack(NBUI.db.NB1_TextColor))
 				NBUI.NB1RightPage_Title:SetColor(unpack(NBUI.db.NB1_TextColor))
 				NBUI.NB1RightPage_Contents:SetColor(unpack(NBUI.db.NB1_TextColor))
 				NBUI.NB1RightPage_ContentsLabel:SetColor(unpack(NBUI.db.NB1_TextColor))
 				Populate_NB1_ScrollList()
-			end,
+		end,
 	})
 
 	-- Selection color. R, G, B, A. Between 0 to 1.
@@ -316,8 +334,9 @@ function CreateNBUISettings()
 		getFunc = function() return unpack(NBUI.db.NB1_SelectionColor) end,
 		setFunc = function(r, g, b, a)
 				NBUI.db.NB1_SelectionColor = {r, g, b, a}
+				-- Apply.
 				NBUI.NB1RightPage_Contents:SetSelectionColor(unpack(NBUI.db.NB1_SelectionColor))
-			end,
+		end,
 	})
 
 	-- Interactive category. --
@@ -334,7 +353,7 @@ function CreateNBUISettings()
 		getFunc = function() return NBUI.db.NB1_ShowDialog end,
 		setFunc = function(value)
 			NBUI.db.NB1_ShowDialog = value
-			end,
+		end,
 		default = NBUI.settings.NB1_ShowDialog,
 	})
 
@@ -347,8 +366,25 @@ function CreateNBUISettings()
 		setFunc = function(value)
 			NBUI.db.NB1_Locked = value
 			NBUI.NB1MainWindow:SetMovable(not NBUI.db.NB1_Locked)
-			end,
+		end,
 		default = NBUI.settings.NB1_Locked,
+	})
+
+	-- Display on top of other UI elements.
+	table.insert(optionsData, {
+		type = "checkbox",
+		name = GetString(SI_NBUI_ONTOP_NAME),
+		tooltip = GetString(SI_NBUI_ONTOP_TOOLTIP),
+		getFunc = function() return NBUI.db.NB1_OnTop end,
+		setFunc = function(value)
+			NBUI.db.NB1_OnTop = value
+			local v = 0
+			if value then
+				v = 1
+			end
+			NBUI.NB1MainWindow:SetDrawLayer(v)
+		end,
+		default = NBUI.settings.NB1_OnTop,
 	})
 
 	-- Toggle chat button.
@@ -363,7 +399,7 @@ function CreateNBUISettings()
 			NBUI.NB1MaxChatWin_ButtonTexture:SetHidden(not NBUI.db.NB1_ChatButton)
 			NBUI.NB1MinChatWin_Button:SetHidden(not NBUI.db.NB1_ChatButton)
 			NBUI.NB1MinChatWin_ButtonTexture:SetHidden(not NBUI.db.NB1_ChatButton)
-			end,
+		end,
 		default = NBUI.settings.NB1_ChatButton,
 	})
 
@@ -404,6 +440,48 @@ function CreateNBUISettings()
 		end,
 		default = NBUI.settings.NB1_ChatButton_Min_Offset,
 })
+
+	-- Emote /read when opening the Notebook.
+	table.insert(optionsData, {
+		type = "checkbox",
+		name = GetString(SI_NBUI_EMOTEREAD_NAME),
+		tooltip = GetString(SI_NBUI_EMOTEREAD_TOOLTIP),
+		getFunc = function() return NBUI.db.NB1_EmoteRead end,
+		setFunc = function(v) NBUI.db.NB1_EmoteRead = v end,
+	})
+
+	-- Emote /idle after closing the Notebook.
+	table.insert(optionsData, {
+		type = "checkbox",
+		name = GetString(SI_NBUI_EMOTEIDLE_NAME),
+		tooltip = GetString(SI_NBUI_EMOTEIDLE_TOOLTIP),
+		getFunc = function() return NBUI.db.NB1_EmoteIdle end,
+		setFunc = function(v) NBUI.db.NB1_EmoteIdle = v end,
+	})
+
+	-- Select line by triple-clicking.
+	table.insert(optionsData, {
+		type = "checkbox",
+		name = GetString(SI_NBUI_SELECTLINE_NAME),
+		tooltip = GetString(SI_NBUI_SELECTLINE_TOOLTIP),
+		getFunc = function() return NBUI.db.NB1_SelectLine end,
+		setFunc = function(v) NBUI.db.NB1_SelectLine = v end,
+	})
+
+	-- Double-clicking selects whole page text.
+	table.insert(optionsData, {
+		type = "checkbox",
+		name = GetString(SI_NBUI_DBLCLICKPAGE_NAME),
+		tooltip = GetString(SI_NBUI_DBLCLICKPAGE_TOOLTIP),
+		getFunc = function() return NBUI.db.NB1_DoubleClickSelectPage end,
+		setFunc = function(v) NBUI.db.NB1_DoubleClickSelectPage = v end,
+	})
+
+	-- Formatted display category. --
+	table.insert(optionsData, {
+		type = "header",
+		name = ZO_HIGHLIGHT_TEXT:Colorize(GetString(SI_NBUI_HEADER_EDITMODE)),
+	})
 
 	-- Display Text-Formatting mode over Editbox, at all.
 	table.insert(optionsData, {
@@ -457,42 +535,6 @@ function CreateNBUISettings()
 		tooltip = GetString(SI_NBUI_LEAVEEDITMODE_EXIT_TOOLTIP),
 		getFunc = function() return NBUI.db.NB1_LeaveEditModeOnExit end,
 		setFunc = function(v) NBUI.db.NB1_LeaveEditModeOnExit = v end,
-	})
-
-	-- Emote /read when opening the Notebook.
-	table.insert(optionsData, {
-		type = "checkbox",
-		name = GetString(SI_NBUI_EMOTEREAD_NAME),
-		tooltip = GetString(SI_NBUI_EMOTEREAD_TOOLTIP),
-		getFunc = function() return NBUI.db.NB1_EmoteRead end,
-		setFunc = function(v) NBUI.db.NB1_EmoteRead = v end,
-	})
-
-	-- Emote /idle after closing the Notebook.
-	table.insert(optionsData, {
-		type = "checkbox",
-		name = GetString(SI_NBUI_EMOTEIDLE_NAME),
-		tooltip = GetString(SI_NBUI_EMOTEIDLE_TOOLTIP),
-		getFunc = function() return NBUI.db.NB1_EmoteIdle end,
-		setFunc = function(v) NBUI.db.NB1_EmoteIdle = v end,
-	})
-
-	-- Select line by triple-clicking.
-	table.insert(optionsData, {
-		type = "checkbox",
-		name = GetString(SI_NBUI_SELECTLINE_NAME),
-		tooltip = GetString(SI_NBUI_SELECTLINE_TOOLTIP),
-		getFunc = function() return NBUI.db.NB1_SelectLine end,
-		setFunc = function(v) NBUI.db.NB1_SelectLine = v end,
-	})
-
-	-- Double-clicking selects whole page text.
-	table.insert(optionsData, {
-		type = "checkbox",
-		name = GetString(SI_NBUI_DBLCLICKPAGE_NAME),
-		tooltip = GetString(SI_NBUI_DBLCLICKPAGE_TOOLTIP),
-		getFunc = function() return NBUI.db.NB1_DoubleClickSelectPage end,
-		setFunc = function(v) NBUI.db.NB1_DoubleClickSelectPage = v end,
 	})
 
 	LAM:RegisterOptionControls("NBUIOptions", optionsData)

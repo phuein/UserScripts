@@ -4,7 +4,7 @@ NBUI.name = "Notebook2018"
 -- NBUI.version = "4.13"
 NBUI.settings = {
 	NB1_Anchor 					= {a = CENTER, b = CENTER, x = 0, y = -20},
-	NB1_BookColor 				= {1, 1, 1, 1},
+	NB1_BookColor 				= {1, 1, 1, 1},		-- Color the book's texture.
 	NB1_TextColor				= {0, 0, 0, 0.7},	-- Notebook title, page title, and text.
 	NB1_SelectionColor			= {1, 1, 1, 0.5},	-- R, G, B, A. Between 0 and 1.
 	NB1_ShowTitle 				= true,
@@ -27,6 +27,23 @@ NBUI.settings = {
 	NB1_EmoteIdle				= true,		-- Emotes /idle after closing the Notebook.
 	NB1_SelectLine				= true,		-- Select whole line with by tripleclicking it.
 	NB1_FormattedMode			= true,		-- Whether to display formatted-text mode Label over Editbox.
+	NB1_BookTexture				= "esoui/art/lorelibrary/lorelibrary_paperbook.dds", -- The texture to use as the book.
+	NB1_OnTop					= true,		-- The book stays on top of other UI elements, to help with taking notes.
+}
+
+-- TODO This one has less space for text:
+-- esoui/art/lorelibrary/lorelibrary_dwemerbook.dds
+-- Maybe increase base size from 1024 for it? Or option to resize texture?
+-- NBUI.NB1MainWindow_Cover:SetTextureCoords(0, 1, 0, 1)
+NBUI.BookTextures = {
+	"esoui/art/lorelibrary/lorelibrary_paperbook.dds",
+	"esoui/art/lorelibrary/lorelibrary_rubbingbook.dds",
+	"esoui/art/lorelibrary/lorelibrary_skinbook.dds",
+}
+NBUI.BookTexturesNames = {
+	"Paper Book",
+	"Rubbing Book",
+	"Skin Book",
 }
 
 function NBUI.ProtectText(text)

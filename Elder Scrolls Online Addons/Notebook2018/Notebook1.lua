@@ -3,9 +3,10 @@ if NBUI == nil then NBUI = {} end
 local buttonCount = 1
 local savedVarsStringMax = 1900
 local currentlyViewing = nil
+local lastLineSelected = ''
 
 ---------------------------------------------------------------------------------------------------
-function Set_Button_TextColors(button)
+local function Set_Button_TextColors(button)
 	-- Tinker with text color from settings.
 	local color = {unpack(NBUI.db.NB1_TextColor)};
 
@@ -19,85 +20,146 @@ function Set_Button_TextColors(button)
 	button:SetPressedFontColor(unpack(color))
 end
 
+-- Update the counter from number.
+local function UpdateCharacterCounter(len)
+	NBUI.NBUI_NB1RightPage_CharacterCounter:SetText(len .. ' / ' .. savedVarsStringMax)
+end
+
+local function CopyToChatInput(text)
+	CHAT_SYSTEM:StartTextEntry(text)
+	ZO_ChatWindowTextEntryEditBox:SelectAll()
+end
+
+-- Create the right-click menu for each page selection.
+local function CreateMenu(title, text, btnID)
+	-- Hide any other open menus.
+	ClearMenu()
+
+	AddMenuItem(GetString(SI_NBUI_CONTEXT_RANDOMLINE), function()
+		-- Split into lines.
+		lines = {}
+		for line in text:gmatch('[^\r\n]+') do table.insert(lines, line) end
+		-- Pick a random line. Avoid repeating same selection.
+		l = lines[math.random(#lines)]
+		while #lines > 1 and l == lastLineSelected do
+			l = lines[math.random(#lines)]
+		end
+		CopyToChatInput(l)
+		-- Track.
+		lastLineSelected = l
+	end)
+
+	AddMenuItem(GetString(SI_NBUI_CONTEXT_SENDASMAIL), function()
+		MAIN_MENU_KEYBOARD:Hide() -- In case it's open. Necessary!
+		MAIN_MENU_KEYBOARD:ShowScene("mailSend")
+
+		SCENE_MANAGER:CallWhen("mailSend", SCENE_SHOWN, function()
+			-- MAIL_SEND:ClearFields()
+			MAIL_SEND.subject:SetText(title)
+			MAIL_SEND.body:SetText(text)
+			MAIL_SEND.to:TakeFocus()
+		end)
+	end)
+
+	-- Aesthetically, only the currently selected page should have this option.
+	if currentlyViewing == btnID then
+		AddMenuItem(GetString(SI_NBUI_CONTEXT_COPYFROMMAIL), function()
+			-- No mail is selected if empty or just logged in / reloadui.
+			if MAIL_INBOX.selectedData then
+				local subject = MAIL_INBOX.selectedData.subject
+				local body = ReadMail(MAIL_INBOX.selectedData.mailId)
+
+				-- Add into current page. NOTE This doesn't also save the changes.
+				NBUI.NB1RightPage_Title:SetText(NBUI.UnprotectText(subject))
+				NBUI.NB1RightPage_Title:SetCursorPosition(0)
+
+				NBUI.NB1RightPage_Contents:SetText(NBUI.UnprotectText(body))
+				NBUI.NB1RightPage_Contents:SetCursorPosition(0)
+
+				-- Update buttons.
+				NBUI.NB1SavePage_Button:SetHidden(false)
+				NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(false)
+
+				-- Update character counter.
+				UpdateCharacterCounter(#body)
+			else
+				d(GetString(SI_NBUI_ERROR_INBOXSELECT))
+			end
+		end)
+	end
+
+	ShowMenu(NBUI.NB1MainWindow)
+end
+
 function Create_NB1_IndexButton(NB1_IndexPool)
 	local button = WINDOW_MANAGER:CreateControlFromVirtual("NB1_Index" .. NB1_IndexPool:GetNextControlId(), NBUI.NB1LeftPage_ScrollContainer.scrollChild, "ZO_DefaultTextButton")
 	local anchorBtn = buttonCount == 1 and NBUI.NB1LeftPage_ScrollContainer.scrollChild or NB1_IndexPool:AcquireObject(buttonCount-1)
-		button:SetAnchor(TOPLEFT, anchorBtn, buttonCount == 1 and TOPLEFT or BOTTOMLEFT)
-		button:SetClickSound(SOUNDS.BOOK_PAGE_TURN)
-		button:SetFont("ZoFontBookPaper")
-		button:EnableMouseButton(MOUSE_BUTTON_INDEX_RIGHT, true)
-		button:SetHandler("OnClicked", function(self, button , ctrl , alt , shift , command)
+
+	button:SetAnchor(TOPLEFT, anchorBtn, buttonCount == 1 and TOPLEFT or BOTTOMLEFT)
+	button:SetClickSound(SOUNDS.BOOK_PAGE_TURN)
+	button:SetFont("ZoFontBookPaper")
+	button:EnableMouseButton(MOUSE_BUTTON_INDEX_RIGHT, true)
+
+	button:SetHandler("OnClicked", function(self, button , ctrl , alt , shift , command)
+		-- Page selection, or loaded at startup.
+		if button == MOUSE_BUTTON_INDEX_LEFT or not button then
 			-- File global variable!
 			currentlyViewing = self.id
 			-- Track page viewed, to reopen on game reload.
 			NBUI.db.NB1_LastPageSeen = currentlyViewing
+		end
 
-			-- Bug with unsaved variables from game.
-			local title = self.data.title
-			if title == nil then
-				title = ""
-			end
+		-- Bug with unsaved variables from game.
+		local title = self.data.title
+		if title == nil then
+			title = ""
+		end
 
-			-- Bug with unsaved variables from game.
-			local text = self.data.text
-			if text == nil then
-				text = ""
-			end
+		-- Bug with unsaved variables from game.
+		local text = self.data.text
+		if text == nil then
+			text = ""
+		end
 
-			-- Right click for menu.
-			if button == 2 then
-				-- Hide any other open menus.
-				ClearMenu()
+		-- Right click for menu.
+		if button == MOUSE_BUTTON_INDEX_RIGHT then
+			CreateMenu(title, text, self.id)
+			return
+		end
 
-				AddMenuItem('Send as Mail', function()
-					MAIN_MENU_KEYBOARD:Hide("mailSend") -- In case it's open. Necessary!
-					MAIN_MENU_KEYBOARD:ShowScene("mailSend")
+		-- Left click to display.
+		NBUI.NB1RightPage_Title:SetHidden(false)
+		NBUI.NB1RightPage_ScrollContainer:SetHidden(false)
 
-					SCENE_MANAGER:CallWhen("mailSend", SCENE_SHOWN, function()
-						MAIL_SEND:ClearFields()
-						MAIL_SEND.subject:SetText(title)
-						MAIL_SEND.body:SetText(text)
-						MAIL_SEND.to:TakeFocus()
-					end)
-				end)
+		NBUI.NB1RightPage_Title:SetText(NBUI.UnprotectText(title))
+		NBUI.NB1RightPage_Title:SetCursorPosition(0)
 
-				ShowMenu()
+		NBUI.NB1RightPage_Contents:SetText(NBUI.UnprotectText(text))
+		NBUI.NB1RightPage_Contents:SetCursorPosition(0)
 
-				return
-			end
+		NBUI.NB1SelectedPage_Button:ClearAnchors()
+		NBUI.NB1SelectedPage_Button:SetAnchorFill(self)
+		-- hides these buttons
+		NBUI.NB1SavePage_Button:SetHidden(true)
+		-- NBUI.NB1UndoPage_Button:SetHidden(true)
+		-- shows these buttons
+		-- NBUI.NB1RunScript_Button:SetHidden(false)
+		NBUI.NB1SelectedPage_Button:SetHidden(false)
+		NBUI.NB1DeletePage_Button:SetHidden(false)
+		NBUI.NB1MovePageUp_Button:SetHidden(false)
+		NBUI.NB1MovePageDown_Button:SetHidden(false)
+		NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(true)
+	end)
 
-			-- Left click to display.
-			NBUI.NB1RightPage_Title:SetHidden(false)
-			NBUI.NB1RightPage_ScrollContainer:SetHidden(false)
-
-			NBUI.NB1RightPage_Title:SetText(NBUI.UnprotectText(title))
-			NBUI.NB1RightPage_Title:SetCursorPosition(0)
-
-			NBUI.NB1RightPage_Contents:SetText(NBUI.UnprotectText(text))
-			NBUI.NB1RightPage_Contents:SetCursorPosition(0)
-
-			NBUI.NB1SelectedPage_Button:ClearAnchors()
-			NBUI.NB1SelectedPage_Button:SetAnchorFill(self)
-			-- hides these buttons
-			NBUI.NB1SavePage_Button:SetHidden(true)
-			-- NBUI.NB1UndoPage_Button:SetHidden(true)
-			-- shows these buttons
-			-- NBUI.NB1RunScript_Button:SetHidden(false)
-			NBUI.NB1SelectedPage_Button:SetHidden(false)
-			NBUI.NB1DeletePage_Button:SetHidden(false)
-			NBUI.NB1MovePageUp_Button:SetHidden(false)
-			NBUI.NB1MovePageDown_Button:SetHidden(false)
-			NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(true)
-		end)
-		button:SetWidth(400)
-		button:SetHorizontalAlignment(TEXT_ALIGN_LEFT)
-		Set_Button_TextColors(button)
+	button:SetWidth(400)
+	button:SetHorizontalAlignment(TEXT_ALIGN_LEFT)
+	Set_Button_TextColors(button)
 
 	buttonCount = buttonCount + 1
 	return button
 end
 ---------------------------------------------------------------------------------------------------
-function Populate_NB1_ScrollList()
+function Populate_NB1_ScrollList(noPageSelect)
 	-- Load all pages from db.
 	local numPages = #NBUI.db.NB1Pages
 	for i = 1, numPages do
@@ -132,8 +194,8 @@ function Populate_NB1_ScrollList()
 		end
 	end
 
-	-- Select a page automatically, if there are any.
-	if numPages > 0 then
+	-- Select a page automatically, if there are any, unless unwanted.
+	if not noPageSelect and numPages > 0 then
 		local last = NBUI.db.NB1_LastPageSeen
 
 		if currentlyViewing then
@@ -173,9 +235,15 @@ function CreateNB1()
 		NBUI.NB1MainWindow:SetAnchor(NBUI.db.NB1_Anchor.a, GuiRoot, NBUI.db.NB1_Anchor.b, NBUI.db.NB1_Anchor.x, NBUI.db.NB1_Anchor.y)
 		NBUI.NB1MainWindow:SetClampedToScreen(true)
 		NBUI.NB1MainWindow:SetDimensions(1004, 752)
-		NBUI.NB1MainWindow:SetDrawLayer(0)
-		NBUI.NB1MainWindow:SetDrawLevel(0)
+
 		NBUI.NB1MainWindow:SetDrawTier(0)
+		local layer = 0
+		if NBUI.db.NB1_OnTop then
+			layer = 1
+		end
+		NBUI.NB1MainWindow:SetDrawLayer(layer) -- Can be on top of other UI elements.
+		NBUI.NB1MainWindow:SetDrawLevel(0)
+
 		NBUI.NB1MainWindow:SetHandler("OnMoveStop", function(self)
 			local _,a,_,b,x,y = self:GetAnchor()
 			NBUI.db.anchor = {["a"]=a, ["b"]=b, ["x"]=x, ["y"]=y}
@@ -196,7 +264,7 @@ function CreateNB1()
 		NBUI.NB1MainWindow_Cover:SetAnchor(TOPLEFT, NBUI.NB1MainWindow, TOPLEFT, -10, -126)
 		NBUI.NB1MainWindow_Cover:SetAnchor(BOTTOMRIGHT, NBUI.NB1MainWindow, BOTTOMRIGHT, 10, 146)
 		NBUI.NB1MainWindow_Cover:SetDimensions(1024, 1024)
-		NBUI.NB1MainWindow_Cover:SetTexture("/esoui/art/lorelibrary/lorelibrary_paperbook.dds")
+		NBUI.NB1MainWindow_Cover:SetTexture(NBUI.db.NB1_BookTexture)
 		NBUI.NB1MainWindow_Cover:SetColor(unpack(NBUI.db.NB1_BookColor))
 		NBUI.NB1MainWindow_Cover:SetAlpha(1)
 --***********************************************************************************************--
@@ -589,13 +657,14 @@ function CreateNB1()
 			NBUI.NB1RightPage_ContentsLabel:SetText(text)
 			NBUI.NB1RightPage_ContentsLabel:UpdateHeight()
 
-			-- Update character counter.
 			-- NOTE: SavedVars won't save a string with over 2,000 character bytes.
 			local textLen = #text
 			if textLen > savedVarsStringMax then
 				NBUI.NB1SavePage_Button:SetHidden(true)
 			end
-			NBUI.NBUI_NB1RightPage_CharacterCounter:SetText(textLen .. ' / ' .. savedVarsStringMax)
+
+			-- Update character counter.
+			UpdateCharacterCounter(textLen)
 			NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(false)
 		end)
 
@@ -857,7 +926,7 @@ function NBUI.NB1SavePage(self)
 	local textLen = #safe_pageText
 	-- d(textLen)
 	if textLen > savedVarsStringMax then
-		d('Page is too long to save!')
+		d('|cFFFFFFNOTEBOOK:|r Page is too long to save!')
 		return
 	end
 
@@ -873,8 +942,11 @@ function NBUI.NB1SavePage(self)
 		-- self.new = false
 	end
 
+	-- Update buttons.
+	NBUI.NB1SavePage_Button:SetHidden(true)
+
 	-- Load all pages in db and select one.
-	Populate_NB1_ScrollList()
+	Populate_NB1_ScrollList(true)
 
 	-- Display selection element and buttons.
 	-- if self.new then
@@ -882,7 +954,6 @@ function NBUI.NB1SavePage(self)
 	-- 	NBUI.NB1SelectedPage_Button:SetAnchorFill(NB1_IndexPool:AcquireObject(currentlyViewing))
 	-- end
 
-	-- NBUI.NB1SavePage_Button:SetHidden(true)
 	-- NBUI.NB1UndoPage_Button:SetHidden(true)
 	-- NBUI.NBUI_NB1RightPage_CharacterCounter:SetHidden(true)
 end
@@ -976,7 +1047,7 @@ function NBUI.NB1MovePageUp(self)
 	table.insert(NBUI.db.NB1Pages, currentlyViewing-1, page)
 	currentlyViewing = currentlyViewing-1
 
-	Populate_NB1_ScrollList()
+	Populate_NB1_ScrollList(true)
 	NBUI.NB1SelectedPage_Button:SetAnchorFill(NB1_IndexPool:AcquireObject(currentlyViewing))
 	NBUI.NB1SelectedPage_Button:SetHidden(false)
 end
@@ -993,7 +1064,7 @@ function NBUI.NB1MovePageDown(self)
 	table.insert(NBUI.db.NB1Pages, currentlyViewing+1, page)
 	currentlyViewing = currentlyViewing+1
 
-	Populate_NB1_ScrollList()
+	Populate_NB1_ScrollList(true)
 	NBUI.NB1SelectedPage_Button:SetAnchorFill(NB1_IndexPool:AcquireObject(currentlyViewing))
 	NBUI.NB1SelectedPage_Button:SetHidden(false)
 end
@@ -1004,7 +1075,7 @@ function NBUI.NB1Preview(self)
 	local newState = not state
 	-- Toggle.
 	NBUI.db.NB1Pages[currentlyViewing].preview = not oldState
-	d(state, NBUI.db.NB1Pages[currentlyViewing].preview)
+	-- d(state, NBUI.db.NB1Pages[currentlyViewing].preview)
 	-- Apply template for preview mode.
 	if newState then
 		WINDOW_MANAGER:ApplyTemplateToControl(NBUI.NB1RightPage_Contents, "ZO_SavingEditBox")
@@ -1024,7 +1095,7 @@ function NBUI.NB1KeyBindToggle()
 	end
 end
 
--- Selects the line under cursor for an EditBox control.
+-- Selects the line under the cursor.
 function NBUI.SelectLine(control)
 	local cursor = control:GetCursorPosition()
 	local text = control:GetText()
@@ -1034,11 +1105,19 @@ function NBUI.SelectLine(control)
 	local t = text:sub(0, cursor)
 	t = t:reverse()
 	first = t:find('\n')
-	if first == nil then first = 0 else first = cursor-first end
+	if first == nil then
+		first = 0
+	else
+		first = cursor - first
+	end
 	-- Find first Newline after cursor, or endoftext.
 	local last = nil
 	last = text:find('\n', cursor)
-	if last == nil then last = text:len() end
+	if last == nil then
+		last = text:len()
+	else
+		last = last -1
+	end
 
 	control:SetSelection(first, last)
 end

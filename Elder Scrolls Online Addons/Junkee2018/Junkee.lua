@@ -4,7 +4,7 @@ Junkee.name = "Junkee2018"
 
 local LAM = LibStub("LibAddonMenu-2.0")
 
-local em = EVENT_MANAGER
+local EM = EVENT_MANAGER
 
 local INVENTORIES_TO_HOOK = {INVENTORY_BACKPACK, INVENTORY_BANK}
 
@@ -27,6 +27,11 @@ Junkee.savedVars = {
 	hideMainQuest = false,
 	trackZone = false,
 	shortGuildNames = false,
+	startInZoneChat = false,
+	blockAutoinvites = false,
+	playerLinkSendMail = false,
+	playerLinkJumpTo = false,
+	playerLinkToHouse = false,
 	-- Each command name will have "/" prepended to it automatically.
 	slashCmds = {
 		GroupLeave = {
@@ -258,7 +263,66 @@ local optionsTable = {
 				Junkee.savedVars.shortGuildNames = v
 			end,
 		width = "full",
-		requiresReload = true,
+	},
+	[12] = {
+		type = "checkbox",
+		name = "Start in Zone Chat",
+		tooltip = "After logging in, the chat will start in /zone chat instead of the default /say.",
+		getFunc = function()
+				return Junkee.savedVars.startInZoneChat
+			end,
+		setFunc = function(v)
+				Junkee.savedVars.startInZoneChat = v
+			end,
+		width = "full",
+	},
+	[13] = {
+		type = "checkbox",
+		name = "Block AutoInvites in Zone Chat",
+		tooltip = "Zone messages that are one (1) character long, such as 'x' or 'y'. (Disabled if AutoInvite is Enabled!)",
+		getFunc = function()
+				return Junkee.savedVars.blockAutoinvites
+			end,
+		setFunc = function(v)
+				Junkee.savedVars.blockAutoinvites = v
+			end,
+		width = "full",
+	},
+	[14] = {
+		type = "checkbox",
+		name = GetString(SI_SOCIAL_MENU_SEND_MAIL),
+		tooltip = "When right-clicking a player link in the chat, adds an option to mail them.",
+		getFunc = function()
+				return Junkee.savedVars.playerLinkSendMail
+			end,
+		setFunc = function(v)
+				Junkee.savedVars.playerLinkSendMail = v
+			end,
+		width = "full",
+	},
+	[15] = {
+		type = "checkbox",
+		name = GetString(SI_SOCIAL_MENU_JUMP_TO_PLAYER),
+		tooltip = "When right-clicking a player link in the chat, adds an option to travel to them.",
+		getFunc = function()
+				return Junkee.savedVars.playerLinkJumpTo
+			end,
+		setFunc = function(v)
+				Junkee.savedVars.playerLinkJumpTo = v
+			end,
+		width = "full",
+	},
+	[16] = {
+		type = "checkbox",
+		name = GetString(SI_SOCIAL_MENU_VISIT_HOUSE),
+		tooltip = "When right-clicking a player link in the chat, adds an option to visit their primary house.",
+		getFunc = function()
+				return Junkee.savedVars.playerLinkToHouse
+			end,
+		setFunc = function(v)
+				Junkee.savedVars.playerLinkToHouse = v
+			end,
+		width = "full",
 	},
 }
 
@@ -448,30 +512,53 @@ local function HideMainQuest()
 	-- Disabled.
 	if not Junkee.savedVars.hideMainQuest then return end
 
-	for i=1, #QUEST_JOURNAL_KEYBOARD.questMasterList.quests do
+	-- Quests.
+	local remove = {}
+
+	for i= 1, #QUEST_JOURNAL_KEYBOARD.questMasterList.quests do
 		if QUEST_JOURNAL_KEYBOARD.questMasterList.quests[i].categoryName == "Main Quest" then
-			QUEST_JOURNAL_KEYBOARD.questMasterList.quests[i] = nil
+			table.insert(remove, i)
 		end
 	end
+	-- Remove matches.
+	for i = 1, #remove do
+		table.remove(QUEST_JOURNAL_KEYBOARD.questMasterList.quests, remove[i])
+	end
 
-	for i=1, #QUEST_JOURNAL_KEYBOARD.questMasterList.categories do
+	-- Quest Categories.
+	remove = {}
+
+	for i= 1, #QUEST_JOURNAL_KEYBOARD.questMasterList.categories do
 		if QUEST_JOURNAL_KEYBOARD.questMasterList.categories[i].name == "Main Quest" then
-			QUEST_JOURNAL_KEYBOARD.questMasterList.categories[i] = nil
+		table.insert(remove, i)
 		end
+	end
+	-- Remove matches.
+	for i = 1, #remove do
+		table.remove(QUEST_JOURNAL_KEYBOARD.questMasterList.categories, remove[i])
 	end
 end
 
 -- Pre-hook main quest from journal.
 local function PreHookMainQuest()
 	ZO_PreHook(QUEST_JOURNAL_KEYBOARD, "RefreshQuestList", HideMainQuest)
-	-- Apply now.
+	-- Apply.
 	QUEST_JOURNAL_KEYBOARD:RefreshQuestList()
 end
 
 -- Track zone chat messages.
 local function TrackChat(messageType, fromName, text, isFromCustomerService, fromDisplayName)
+	-- Zone chat tracker.
 	if not Junkee.hadZoneChat and messageType == CHAT_CHANNEL_ZONE then
 		Junkee.hadZoneChat = true
+	end
+
+	-- Ignore Autoinvite posts in zone. It's usually "x" or "y", so that's close enough.
+	-- NOTE Try to avoid this if AutoInvite is detected and active!
+	if AutoInvite and AutoInvite.enabled then
+		-- Do nothing.
+	elseif Junkee.savedVars.blockAutoinvites and messageType == CHAT_CHANNEL_ZONE and #text:gsub("%s+", "") == 1 then
+		return true
 	end
 end
 
@@ -484,62 +571,41 @@ local function LinkHandler_OnLinkMouseUp(link, button, _, _, linkType, ...)
 	end
 end
 
--- Shorten guild names into their initials.
-local function ShortGuildNames()
+-- Overrides the game function, for guild channels.
+-- TODO don't repeat this every time, but just update a table with abbreviations on guild changes and load.
+local OriginalCreateChannelLink = _G["ZO_LinkHandler_CreateChannelLink"]
+local GuildNameAbbreviations = {}
+local function CreateChannelLink(channelName)
 	-- Disabled.
-	if not Junkee.savedVars.shortGuildNames then return end
+	if not Junkee.savedVars.shortGuildNames then return OriginalCreateChannelLink(channelName) end
 
-	-- Go over each guild out of the alotted 5.
-	for i=1,5 do
-		local gid = _G['CHAT_CHANNEL_GUILD_'..i]
-		local oid = _G['CHAT_CHANNEL_OFFICER_'..i]
+	local name = channelName
 
-		-- Tells the chat to not ask the game for the guild name dynamically.
-		CHAT_SYSTEM.channelData[gid].dynamicName = false
-		CHAT_SYSTEM.channelData[oid].dynamicName = false
-
-		name = GetDynamicChatChannelName(gid)
-
-		-- Get only the intials and capitalize them.
-		name = name:gsub("(%a)%w*", function(l) return string.upper(l) end)
-		-- Remove the spaces.
-		name = name:gsub("%s+", "")
-
-		CHAT_SYSTEM.channelData[gid].name = name
-		CHAT_SYSTEM.channelData[oid].name = name
-	end
-end
-
--- Do once after activation.
-local function OnActivatedOnce()
-	-- Do on first run of addon.
-	if Junkee.savedVars.firstRun then
-		Junkee.savedVars.firstRun = false
-		d("Junkee recommends these keybindings:\n" ..
-			"Junk/UnJunk = Z, Destroy = Shift+Z, Link = F2, Lock = Tab.")
+	-- 12 to 16.
+	for i = CHAT_CHANNEL_GUILD_1, CHAT_CHANNEL_GUILD_5 do
+		if GetChannelName(i) == channelName then
+			if GuildNameAbbreviations[i] then
+				-- Already made an abbr for it.
+				name = GuildNameAbbreviations[i]
+			else
+				-- Get only the intials and special characters. Remove the spaces.
+				name = name:gsub('(%w)%w+', '%1'):gsub('%s', '')
+				-- Save it.
+				GuildNameAbbreviations[i] = name
+			end
+		end
 	end
 
-	-- Add copy name to chat item links.
-	LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_MOUSE_UP_EVENT, LinkHandler_OnLinkMouseUp)
-
-	-- Pre-hook enabling middle-mouse button for all slots (mail, inventory, etc.)
-	ZO_PreHook("ZO_Inventory_SetupSlot", AddMiddleMouseButton)
-
-	-- Pre-hook adding name copying with middle-mouse click.
-	ZO_PreHook("ZO_InventorySlot_OnSlotClicked", MiddleMouseCopiesNameToChat)
-
-	-- Remove Main Quests from quests list, so they're hidden.
-	PreHookMainQuest()
-
-	-- Listen to chat events.
-	ZO_PreHook(ZO_ChatSystem_GetEventHandlers(), EVENT_CHAT_MESSAGE_CHANNEL, TrackChat)
-
-	-- Shrink guild names in the chat.
-	ShortGuildNames()
-	-- Update on guild changes.
-	em:RegisterForEvent(Junkee.name, EVENT_GUILD_SELF_JOINED_GUILD, ShortGuildNames)
-	em:RegisterForEvent(Junkee.name, EVENT_GUILD_SELF_LEFT_GUILD, ShortGuildNames)
+	-- Only change the appearance, not the data.
+	return ZO_LinkHandler_CreateLink(name, nil, CHANNEL_LINK_TYPE, channelName)
 end
+
+local function ClearGuildNameAbbreviations()
+	GuildNameAbbreviations = {}
+end
+
+EM:RegisterForEvent("GuildRoster", EVENT_GUILD_SELF_JOINED_GUILD, function() ClearGuildNameAbbreviations() end)
+EM:RegisterForEvent("GuildRoster", EVENT_GUILD_SELF_LEFT_GUILD, function() ClearGuildNameAbbreviations() end)
 
 local function TrackZone()
 	local zone = GetUnitZone("player")
@@ -568,6 +634,91 @@ local function TrackZone()
 	end
 end
 
+local OriginalShowPlayerContextMenu = CHAT_SYSTEM.ShowPlayerContextMenu
+local function ShowPlayerContextMenu(playerName, rawName)
+	-- Run the original function.
+	OriginalShowPlayerContextMenu(playerName, rawName)
+
+	if Junkee.savedVars.playerLinkSendMail then
+		AddMenuItem(GetString(SI_SOCIAL_MENU_SEND_MAIL), function()
+			MAIN_MENU_KEYBOARD:Hide() -- In case it's open. Necessary!
+			MAIN_MENU_KEYBOARD:ShowScene("mailSend")
+
+			SCENE_MANAGER:CallWhen("mailSend", SCENE_SHOWN, function()
+				MAIL_SEND.to:SetText(rawName)
+				MAIL_SEND.subject:TakeFocus()
+			end)
+		end)
+
+		-- Update menu dimensions.
+		ZO_Menu:SetDimensions((ZO_Menu.menuPad * 2) + ZO_Menu.width, (ZO_Menu.menuPad * 2) + ZO_Menu.height + ZO_Menu.spacing * (#ZO_Menu.items - 1))
+
+		-- Update item dimensions.
+		local item = ZO_Menu.items[#ZO_Menu.items].item
+		item:SetDimensions(ZO_Menu.width, item.storedHeight)
+	end
+
+	if Junkee.savedVars.playerLinkJumpTo then
+		AddMenuItem(GetString(SI_SOCIAL_MENU_JUMP_TO_PLAYER), function()
+			JumpToFriend(rawName)
+		end)
+
+		-- Update menu dimensions.
+		ZO_Menu:SetDimensions((ZO_Menu.menuPad * 2) + ZO_Menu.width, (ZO_Menu.menuPad * 2) + ZO_Menu.height + ZO_Menu.spacing * (#ZO_Menu.items - 1))
+
+		-- Update item dimensions.
+		local item = ZO_Menu.items[#ZO_Menu.items].item
+		item:SetDimensions(ZO_Menu.width, item.storedHeight)
+	end
+
+	if Junkee.savedVars.playerLinkToHouse then
+		AddMenuItem(GetString(SI_SOCIAL_MENU_VISIT_HOUSE), function()
+			JumpToHouse(rawName)
+		end)
+
+		-- Update menu dimensions.
+		ZO_Menu:SetDimensions((ZO_Menu.menuPad * 2) + ZO_Menu.width, (ZO_Menu.menuPad * 2) + ZO_Menu.height + ZO_Menu.spacing * (#ZO_Menu.items - 1))
+
+		-- Update item dimensions.
+		local item = ZO_Menu.items[#ZO_Menu.items].item
+		item:SetDimensions(ZO_Menu.width, item.storedHeight)
+	end
+end
+
+-- Do once after activation.
+local function OnActivatedOnce()
+	-- Do on first run of addon.
+	if Junkee.savedVars.firstRun then
+		Junkee.savedVars.firstRun = false
+		d("Junkee recommends these keybindings:\n" ..
+			"Junk/UnJunk = Z, Destroy = Shift+Z, Link = F2, Lock = Tab.")
+	end
+
+	-- Add copy name to chat item links.
+	LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_MOUSE_UP_EVENT, LinkHandler_OnLinkMouseUp)
+
+	-- Pre-hook enabling middle-mouse button for all slots (mail, inventory, etc.)
+	ZO_PreHook("ZO_Inventory_SetupSlot", AddMiddleMouseButton)
+
+	-- Pre-hook adding name copying with middle-mouse click.
+	ZO_PreHook("ZO_InventorySlot_OnSlotClicked", MiddleMouseCopiesNameToChat)
+
+	-- Remove Main Quests from quests list, so they're hidden.
+	PreHookMainQuest()
+
+	-- Listen to chat events.
+	ZO_PreHook(ZO_ChatSystem_GetEventHandlers(), EVENT_CHAT_MESSAGE_CHANNEL, TrackChat)
+
+	-- Override guild names in chat.
+	_G["ZO_LinkHandler_CreateChannelLink"] = CreateChannelLink
+
+	-- Start in /zone chat.
+	if Junkee.savedVars.startInZoneChat then CHAT_SYSTEM:SetChannel(CHAT_CHANNEL_ZONE) end
+
+	-- Override right-click menu for player links in chat.
+	CHAT_SYSTEM.ShowPlayerContextMenu = ShowPlayerContextMenu
+end
+
 -- Do when player and UI are ready.
 Junkee.OnActivated = function(eventCode, initial)
 	if Junkee.firstActivation then
@@ -576,13 +727,15 @@ Junkee.OnActivated = function(eventCode, initial)
 	end
 
 	-- Repeat whenever player is loaded (after loading screens, usually.)
+	-- NOTE Maybe use EVENT_ZONE_CHANNEL_CHANGED?
 	if Junkee.savedVars.trackZone then TrackZone() end
 end
-em:RegisterForEvent(Junkee.name, EVENT_PLAYER_ACTIVATED, Junkee.OnActivated)
+
+EM:RegisterForEvent(Junkee.name, EVENT_PLAYER_ACTIVATED, Junkee.OnActivated)
 
 Junkee.Loaded = function(eventCode, addonName)
 	if (Junkee.name == addonName) then
-		em:UnregisterForEvent(Junkee.name, EVENT_ADD_ON_LOADED)
+		EM:UnregisterForEvent(Junkee.name, EVENT_ADD_ON_LOADED)
 
 		registerHooks()
 
@@ -606,4 +759,5 @@ Junkee.Loaded = function(eventCode, addonName)
 		end
 	end
 end
-em:RegisterForEvent(Junkee.name, EVENT_ADD_ON_LOADED, Junkee.Loaded)
+
+EM:RegisterForEvent(Junkee.name, EVENT_ADD_ON_LOADED, Junkee.Loaded)
