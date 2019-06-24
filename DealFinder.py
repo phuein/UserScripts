@@ -1293,7 +1293,7 @@ class Spider(scrapy.Spider):
                 start += len(s)
 
                 url = f'{url[:start]}{page}'
-            print(f'url page #{page} -> {url}')
+            # print(f'url page #{page} -> {url}')
 
             # Wait between every page, like a human would.
             sleep(uniform(10.5, 15.5))
