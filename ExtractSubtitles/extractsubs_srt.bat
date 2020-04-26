@@ -9,4 +9,4 @@ if "%~1"=="" goto :END
   goto :LOOP
 :END
 
-pause
+if %errorlevel% neq 0 pause
