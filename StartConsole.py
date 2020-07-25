@@ -11,7 +11,7 @@ import win32gui
 
 DEBUG = False
 
-delay = 3  # Don't repeat anything faster than this in seconds.
+delay = 5  # Don't repeat anything faster than this in seconds.
 t = 0
 
 # Press down all four front buttons to activate.
@@ -25,6 +25,7 @@ toggles = {
 windowName = "RetroArch"
 processName = "retroarch.exe"
 handle = None
+activated = False
 
 if DEBUG:
     windowName = "Untitled - Notepad"
@@ -38,48 +39,70 @@ def enumHandler(hwnd, lParam):
     if "RetroArch" in win32gui.GetWindowText(hwnd):
         handle = hwnd
 
+# Load or bring process forward.
 
+
+def getProcess():
+    global processName, handle
+
+    # Check if RetroArch isn't running.
+    # Long string of all procs.
+    lst = os.popen("tasklist").read()
+
+    if processName not in lst:
+        os.startfile(processName)
+    else:
+        try:
+            # Find window.
+            win32gui.EnumWindows(enumHandler, None)
+            # Bring to front.
+            if handle:
+                win32gui.SetForegroundWindow(handle)
+            # Reset hwnd.
+            handle = None
+        except Exception as e:
+            print(e)
+
+# Check if the corrent button combination is pressed on a gamepad,
+# and start or bring the process forward.
+
+
+def checkGamepads(events):
+    for e in events:
+        if e.code in toggles:
+            print(e.code, e.state)
+            toggles[e.code] = e.state
+
+    # Check if all 4 are down.
+    if all(v != 0 for v in toggles.values()):
+        # Avoid repetition by resetting the tracker.
+        for k, v in toggles.items():
+            toggles[k] = 0
+        print('starting!')
+        getProcess()
+
+
+# Track pressed gamepad buttons.
+# Refresh tracker every interval.
 while True:
-    # No gamepads connected. Must have one.
+    # No gamepads connected. Wait and retry.
     if len(inputs.devices.gamepads) == 0:
         DEBUG and print('No gamepads connected.')
         sleep(delay)
         inputs.devices._detect_gamepads()
         continue
 
-    # Only the first gamepad to register will catch.
-    try:
-        gamepad = inputs.devices.gamepads[0]
-        events = gamepad.read()
-    except Exception as e:
-        DEBUG and print(e)
-        inputs.devices.gamepads = {}
-        # Try again.
-        continue
+    # Reduce CPU usage.
+    sleep(0.01)
 
-    for e in events:
-        if e.code in toggles:
-            toggles[e.code] = e.state
+    # Check every gamepad.
+    for gamepad in inputs.devices.gamepads:
+        try:
+            events = gamepad.read()
+        except Exception as e:
+            DEBUG and print(e)
+            # Reset detected gamepads.
+            inputs.devices.gamepads = []
+            break
 
-        # Check if all 4 are down.
-        if all(v != 0 for v in toggles.values()):
-            # Don't retry too fast.
-            if time() - t < 3:
-                continue
-
-            # Check if RetroArch isn't running.
-            lst = os.popen("tasklist").read()  # Long string of all procs.
-
-            if processName not in lst:
-                os.startfile(processName)
-            else:
-                # Find window.
-                win32gui.EnumWindows(enumHandler, None)
-                # Bring to front.
-                if handle:
-                    win32gui.SetForegroundWindow(handle)
-                # Reset hwnd.
-                handle = None
-
-            # Reset timer.
-            t = time()
+        checkGamepads(events)
