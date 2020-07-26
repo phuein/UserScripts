@@ -1,0 +1,58 @@
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Management;
+using System.Threading;
+
+// Automatically changes Window Position Profile, if not loaded previously,
+// according to screen width.
+// by Phuein
+//
+// The 'windowHandle' parameter will contain the window handle for the:
+// - Active window when run by hotkey
+// - Window Location target when run by a Window Location rule
+// - TitleBar Button owner when run by a TitleBar Button
+// - Jump List owner when run from a Taskbar Jump List
+// - Currently focused window if none of these match
+public static class DisplayFusionFunction
+{
+    const int screenWidth1 = 3440;
+    const string profile1 = "3440x1440";
+
+    const int screenWidth2 = 1720;
+    const string profile2 = "1720x1440";
+
+    public static void Run(IntPtr windowHandle)
+    {
+        string lastProfileLoaded = "";
+        try {
+            lastProfileLoaded = BFS.ScriptSettings.ReadValue("lastProfileLoaded");
+        } catch {
+            BFS.ScriptSettings.WriteValue("lastProfileLoaded", "");
+            lastProfileLoaded = BFS.ScriptSettings.ReadValue("lastProfileLoaded");
+        }
+
+        int screenWidth = Screen.PrimaryScreen.Bounds.Width;
+
+        //BFS.Dialog.ShowMessageInfo(screenWidth.ToString());
+        //BFS.Dialog.ShowMessageInfo(lastProfileLoaded);
+
+        // Full screen
+        if (screenWidth == screenWidth1 && lastProfileLoaded != profile1)
+        {
+            BFS.ScriptSettings.WriteValue("lastProfileLoaded", profile1);
+            BFS.DisplayFusion.LoadWindowPositionProfile(profile1);
+
+            //BFS.Dialog.ShowMessageInfo("Full screen!");
+        }
+
+        // Split screen
+        else if (screenWidth == screenWidth2 && lastProfileLoaded != profile2)
+        {
+            BFS.ScriptSettings.WriteValue("lastProfileLoaded", profile2);
+            BFS.DisplayFusion.LoadWindowPositionProfile(profile2);
+
+            //BFS.Dialog.ShowMessageInfo("Split screen!");
+        }
+    }
+}
