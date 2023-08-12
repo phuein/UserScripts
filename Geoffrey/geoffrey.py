@@ -27,7 +27,7 @@ DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
 logging.basicConfig(
     handlers=[
-        logging.FileHandler('E:\geoffrey.log', mode='w'),
+        logging.FileHandler('geoffrey.log', mode='w'),
         logging.StreamHandler(sys.stdout)
     ],
     encoding='utf-8',
