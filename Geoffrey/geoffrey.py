@@ -11,7 +11,7 @@ IF the bot stops responding without any error, reinvite it to your server:
 
 Create an executable to run on Windows startup:
 
-    pyinstaller --onefile --noconsole -i 'E:\geoffrey.exe' .\geoffrey.py
+    pyinstaller --onefile --noconsole --icon=geoffrey.ico geoffrey.py
 
 More useful information:
 
